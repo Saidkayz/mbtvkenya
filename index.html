@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MBTV Kenya Media Management System</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Work+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-container": "#90bde0",
+                      "on-surface": "#e2e2e6",
+                      "primary-container": "#1b4d6b",
+                      "surface-container-highest": "#333538",
+                      "on-tertiary-fixed-variant": "#574500",
+                      "on-tertiary-fixed": "#241a00",
+                      "surface-container-low": "#1a1c1f",
+                      "on-error-container": "#ffdad6",
+                      "on-secondary-container": "#d4b479",
+                      "outline": "#8b9198",
+                      "tertiary-fixed-dim": "#e9c349",
+                      "error": "#ffb4ab",
+                      "surface-container-lowest": "#0c0e11",
+                      "secondary-container": "#5c4515",
+                      "on-surface-variant": "#c1c7ce",
+                      "surface-dim": "#111316",
+                      "surface-tint": "#9fccef",
+                      "on-background": "#e2e2e6",
+                      "on-primary-fixed-variant": "#184b69",
+                      "primary-fixed-dim": "#9fccef",
+                      "on-error": "#690005",
+                      "inverse-primary": "#356382",
+                      "on-secondary-fixed": "#261900",
+                      "surface-variant": "#333538",
+                      "tertiary": "#e9c349",
+                      "surface-container": "#1e2023",
+                      "surface-bright": "#37393d",
+                      "on-tertiary-container": "#4e3d00",
+                      "surface": "#111316",
+                      "inverse-surface": "#e2e2e6",
+                      "tertiary-fixed": "#ffe088",
+                      "on-primary": "#00344e",
+                      "error-container": "#93000a",
+                      "tertiary-container": "#cca730",
+                      "primary-fixed": "#c9e6ff",
+                      "primary": "#9fccef",
+                      "inverse-on-surface": "#2f3034",
+                      "background": "#111316",
+                      "secondary-fixed": "#ffdea4",
+                      "surface-container-high": "#282a2d",
+                      "on-secondary-fixed-variant": "#5a4313",
+                      "on-secondary": "#412d00",
+                      "on-primary-fixed": "#001e2f",
+                      "on-tertiary": "#3c2f00",
+                      "secondary-fixed-dim": "#e3c286",
+                      "outline-variant": "#41474d",
+                      "secondary": "#e3c286"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Manrope"],
+                      "body": ["Work Sans"],
+                      "label": ["Work Sans"]
+              }
+            },
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-gradient {
+            background: linear-gradient(135deg, #1b4d6b 0%, #0c0e11 100%);
+        }
+        .gold-shimmer {
+            background: linear-gradient(90deg, #e3c286 0%, #e9c349 50%, #e3c286 100%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-secondary/30 selection:text-secondary">
+<!-- TopNavBar Navigation Shell -->
+<header class="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-xl shadow-2xl shadow-sky-900/20">
+<nav class="flex justify-between items-center px-8 h-[96px] max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-4">
+<img alt="MBTV Kenya Logo" class="h-[96px] w-auto" data-alt="professional media company logo with elegant typography and a minimalist representation of a minaret in gold and sky blue" src="Design/mbtv-kenya.png"/>
+<span class="text-2xl font-black tracking-tighter leading-none text-sky-200 font-headline">MBTV Kenya</span>
+</div>
+<div class="hidden md:flex gap-10 items-center">
+<a class="font-manrope tracking-tight font-bold text-amber-400 border-b-2 border-amber-400 pb-1" href="index.html">Home</a>
+<a class="font-manrope tracking-tight font-bold text-slate-300 hover:text-sky-200 transition-colors" href="program.html">Programs</a>
+<a class="font-manrope tracking-tight font-bold text-slate-300 hover:text-sky-200 transition-colors" href="about.html">About</a>
+<a class="font-manrope tracking-tight font-bold text-slate-300 hover:text-sky-200 transition-colors" href="contact.html">Contact</a>
+<a class="font-manrope tracking-tight font-bold text-slate-300 hover:text-sky-200 transition-colors" href="login.html">Login</a>
+</div>
+<div class="flex items-center gap-6">
+<button class="material-symbols-outlined text-slate-300 hover:text-sky-200 transition-colors cursor-pointer" data-icon="account_circle">account_circle</button>
+                <a href="login.html" class="bg-primary-container text-on-primary-container font-headline font-bold px-6 py-2.5 rounded-lg border border-primary/20 scale-95 active:opacity-80 transition-transform inline-block">
+                    Dashboard
+                </a>
+</div>
+</nav>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="relative min-h-screen flex items-center pt-20 overflow-hidden">
+<div class="absolute inset-0 z-0">
+<div class="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent z-10"></div>
+<img alt="Broadcast Studio" class="w-full h-full object-cover" data-alt="modern television broadcast studio with multiple monitors displaying Islamic calligraphy and urban landscapes at night with soft blue ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwyfTIxf11ExnSJ92n_EG25a4__QkVqBw8VKfeC9I8C51-Rtll-wJ9SdW6t3t5PjBO6OneX29rpD6pkupFuEMUrAexCiH6XEBpKYIddisOq9ED0deeeW8B6w4GNvqY6dWzoiiw3LgEmbL1wTnFoZG51utUQaZA_lhxvb6mpEWolkC-SSczDy0flSq90UuA5n31DUllyla30ssWkGesncPSrA4tPZdOKzeZ-D0nc5ero3sv9GVirpf3VYYyj7BXRbShJD8AQ47ER_4"/>
+</div>
+<div class="relative z-20 max-w-7xl mx-auto px-8 w-full">
+<div class="max-w-3xl">
+<div class="flex items-center gap-3 mb-6">
+<span class="w-12 h-[1px] bg-secondary"></span>
+<span class="text-secondary font-headline font-bold uppercase tracking-widest text-sm">The Digital Minaret</span>
+</div>
+<h1 class="text-6xl md:text-8xl font-headline font-extrabold text-on-surface leading-[1.1] mb-8 tracking-tighter">
+                        Empowering Da’wah Through <span class="text-primary italic">Media</span> and Technology
+                    </h1>
+<p class="text-xl text-on-surface-variant font-light leading-relaxed mb-10 max-w-2xl border-l-2 border-primary-container pl-6">
+                        MBTV Kenya is dedicated to bridging the gap between spiritual growth and modern broadcasting technology, delivering high-quality Islamic content to the heart of East Africa.
+                    </p>
+<div class="flex flex-wrap gap-4">
+<button class="editorial-gradient text-on-primary-container font-headline font-bold px-10 py-5 rounded-xl shadow-lg shadow-primary-container/20 hover:shadow-primary-container/40 transition-all border border-primary/10">
+                            Login to System
+                        </button>
+<button class="bg-transparent border border-outline-variant text-on-surface font-headline font-bold px-10 py-5 rounded-xl hover:bg-white/5 transition-all">
+                            View Programs
+                        </button>
+</div>
+</div>
+</div>
+</section>
+<!-- System Capabilities: Features Section -->
+<section class="py-32 bg-surface">
+<div class="max-w-7xl mx-auto px-8">
+<div class="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
+<div>
+<h2 class="text-4xl md:text-5xl font-headline font-bold tracking-tight text-on-surface mb-4">System Capabilities</h2>
+<p class="text-on-surface-variant max-w-md">Our integrated ecosystem manages every aspect of digital da'wah and broadcasting operations.</p>
+</div>
+<div class="text-right hidden md:block">
+<span class="text-8xl font-headline font-black text-white/5 select-none">MANAGEMENT</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Feature 1 -->
+<div class="group bg-surface-container-low p-8 rounded-2xl hover:bg-surface-container-high transition-all duration-500 border-t border-transparent hover:border-secondary/20">
+<div class="w-14 h-14 rounded-full bg-primary-container flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="video_library">video_library</span>
+</div>
+<h3 class="text-xl font-headline font-bold mb-4 text-secondary">Video Management</h3>
+<p class="text-on-surface-variant leading-relaxed">Streamline your content pipeline from upload to broadcast with integrated metadata and tagging.</p>
+</div>
+<!-- Feature 2 -->
+<div class="group bg-surface-container-low p-8 rounded-2xl hover:bg-surface-container-high transition-all duration-500 border-t border-transparent hover:border-secondary/20">
+<div class="w-14 h-14 rounded-full bg-primary-container flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="inventory_2">inventory_2</span>
+</div>
+<h3 class="text-xl font-headline font-bold mb-4 text-secondary">Equipment Tracking</h3>
+<p class="text-on-surface-variant leading-relaxed">Manage gear check-outs and inventory with real-time status updates and location tracking.</p>
+</div>
+<!-- Feature 3 -->
+<div class="group bg-surface-container-low p-8 rounded-2xl hover:bg-surface-container-high transition-all duration-500 border-t border-transparent hover:border-secondary/20">
+<div class="w-14 h-14 rounded-full bg-primary-container flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="sms">sms</span>
+</div>
+<h3 class="text-xl font-headline font-bold mb-4 text-secondary">SMS Notifications</h3>
+<p class="text-on-surface-variant leading-relaxed">Automated alerts for staff attendance and equipment returns to ensure seamless production cycles.</p>
+</div>
+<!-- Feature 4 -->
+<div class="group bg-surface-container-low p-8 rounded-2xl hover:bg-surface-container-high transition-all duration-500 border-t border-transparent hover:border-secondary/20">
+<div class="w-14 h-14 rounded-full bg-primary-container flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="picture_as_pdf">picture_as_pdf</span>
+</div>
+<h3 class="text-xl font-headline font-bold mb-4 text-secondary">PDF Reports</h3>
+<p class="text-on-surface-variant leading-relaxed">Generate comprehensive performance and operational reports instantly for stakeholders.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Programs Preview: Curated Grid -->
+<section class="py-32 bg-surface-container-lowest">
+<div class="max-w-7xl mx-auto px-8">
+<div class="text-center mb-20">
+<h2 class="text-4xl font-headline font-bold mb-6">Latest from MBTV Kenya</h2>
+<div class="h-1 w-20 bg-secondary mx-auto"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+<!-- Program 1 -->
+<div class="relative group cursor-pointer overflow-hidden rounded-xl">
+<div class="aspect-[16/9] w-full overflow-hidden">
+<img alt="Friday Khutbah" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="interior view of a grand mosque with intricate geometric architecture and soft natural light streaming through high windows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQM1-N6ICG7NGao5d7BlRvD8SDJHLwGKptkdDx4o685I5-fHoNjH1JUu4zE7tKlWHnIK8gnoySyVBz8eqLPFUEod9rsaL62gCNXLYM6kp2mhlc2UtdWKBUkvUOzqt0c9jwAIibK1KJcPMhnTZQcny1mwOBp9KX07uuMzxQs8A5kBRJqB2Cpg7eTYMxcwdxWNNkwpPCsJWG_JRgHE12Elmo3933IvByMvKglJ-8FyxU3OQBvS8-mxqCX8n66JFWja8AST7LKKcYaKU"/>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60"></div>
+<div class="absolute bottom-0 left-0 p-6 w-full">
+<span class="text-secondary text-xs font-headline font-bold tracking-widest uppercase mb-2 block">Weekly Broadcast</span>
+<h4 class="text-2xl font-headline font-bold text-on-surface">Friday Khutbah</h4>
+</div>
+<div class="absolute top-4 right-4 bg-secondary text-on-secondary px-3 py-1 text-xs font-bold rounded-full">LIVE</div>
+</div>
+<!-- Program 2 -->
+<div class="relative group cursor-pointer overflow-hidden rounded-xl">
+<div class="aspect-[16/9] w-full overflow-hidden">
+<img alt="Youth &amp; Identity" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="diverse group of young professionals engaged in a thoughtful discussion in a modern office space with large windows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOvUTlDCsZZLbLDT3wdIsYSVEvoDvhQA4rNVMIU-6j7BsRztRI7S1krU4xdggJpEisRGQOCVn7FgHAo9OX8N45nPYYngYBS6YtZjMjJ30pYo6FdXW9qVueSIvZK7ij2qQliGo3-7DYmonv2ZX6yG5AzxOAhRsPDR_pkVs3v7Xyx15E8GYiSQg9cSbeLZix53jI5I_-rVmZkWzJzOCrpMu1CzxKK9FLDkppbVUYfoYqsI9z5PXlv-NPOiLGt7Jvf2iuBDmu7HH_aSg"/>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60"></div>
+<div class="absolute bottom-0 left-0 p-6 w-full">
+<span class="text-secondary text-xs font-headline font-bold tracking-widest uppercase mb-2 block">Talk Show</span>
+<h4 class="text-2xl font-headline font-bold text-on-surface">Youth &amp; Identity</h4>
+</div>
+</div>
+<!-- Program 3 -->
+<div class="relative group cursor-pointer overflow-hidden rounded-xl">
+<div class="aspect-[16/9] w-full overflow-hidden">
+<img alt="Quranic Insights" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="close-up of an open Quran with elegant Arabic calligraphy illuminated by a single warm candlelight in a dark room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1RoDkQX8W6gyLXSj_N3zflKLEhLqiLIPrW71510PBSqmSpKX6_ttDP2HwIOKku5V1DCAWytUvKHf3bA1icsmzC3U8ba4KIvVDnnrXxOya5rzxrbvkaROs9Q6wDvQIvWFZawDgUOjbOs4zP03Y2OazQX87RT5TDFv79Q_zUPE8jBEDhnMYtRUEkdWrcvS1_xQDKHBhTtGxFz0IjWZdNRatmxiPSCixSzKMO4wfu3kHinlFAIKzEp_iCulWwWqnZDuGuNM5ctui1Rw"/>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60"></div>
+<div class="absolute bottom-0 left-0 p-6 w-full">
+<span class="text-secondary text-xs font-headline font-bold tracking-widest uppercase mb-2 block">Spiritual Series</span>
+<h4 class="text-2xl font-headline font-bold text-on-surface">Quranic Insights</h4>
+</div>
+</div>
+</div>
+<div class="mt-16 text-center">
+<a class="inline-flex items-center gap-2 text-primary font-headline font-bold hover:gap-4 transition-all" href="#">
+                        Explore Full Library <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Shell -->
+<footer class="bg-slate-950 w-full pt-16 pb-8 border-t border-white/5">
+<div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="space-y-6">
+<div class="flex items-center gap-3">
+<img alt="MBTV Footer Logo" class="h-10 w-auto" data-alt="small scale version of the MBTV Kenya logo in gold and blue" src="Design/mbtv-kenya.png"/>
+<span class="font-manrope font-bold text-xl text-sky-400">MBTV Kenya</span>
+</div>
+<p class="font-work-sans text-sm leading-relaxed text-slate-500 italic">
+                    "The Digital Minaret" - Broadcasting truth with sophistication and grace.
+                </p>
+<div class="flex gap-4">
+<button class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-sky-500/20 transition-colors">
+<span class="material-symbols-outlined text-sky-400 text-xl" data-icon="share">share</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-sky-500/20 transition-colors">
+<span class="material-symbols-outlined text-sky-400 text-xl" data-icon="public">public</span>
+</button>
+</div>
+</div>
+<div>
+<h5 class="text-amber-200 font-headline font-bold mb-6">Quick Links</h5>
+<ul class="space-y-4 font-work-sans text-sm">
+<li><a class="text-slate-500 hover:text-sky-300 transition-opacity" href="#">Programs Guide</a></li>
+<li><a class="text-slate-500 hover:text-sky-300 transition-opacity" href="#">Live Stream</a></li>
+<li><a class="text-slate-500 hover:text-sky-300 transition-opacity" href="#">Staff Login</a></li>
+<li><a class="text-slate-500 hover:text-sky-300 transition-opacity" href="#">Donations</a></li>
+</ul>
+</div>
+<div>
+<h5 class="text-amber-200 font-headline font-bold mb-6">Policies</h5>
+<ul class="space-y-4 font-work-sans text-sm">
+<li><a class="text-slate-500 hover:text-sky-300 transition-opacity" href="#">Terms of Service</a></li>
+<li><a class="text-slate-500 hover:text-sky-300 transition-opacity" href="#">Privacy Policy</a></li>
+<li><a class="text-slate-500 hover:text-sky-300 transition-opacity" href="#">Editorial Guidelines</a></li>
+<li><a class="text-slate-500 hover:text-sky-300 transition-opacity" href="#">Community Standards</a></li>
+</ul>
+</div>
+<div>
+<h5 class="text-amber-200 font-headline font-bold mb-6">Contact Us</h5>
+<ul class="space-y-4 font-work-sans text-sm">
+<li class="flex items-center gap-3 text-slate-500">
+<span class="material-symbols-outlined text-sky-400 text-sm" data-icon="mail">mail</span> info@mbtv.co.ke
+                    </li>
+<li class="flex items-center gap-3 text-slate-500">
+<span class="material-symbols-outlined text-sky-400 text-sm" data-icon="location_on">location_on</span> Nairobi, Kenya
+                    </li>
+<li class="mt-6">
+<span class="inline-block px-4 py-2 bg-amber-400/10 text-amber-400 rounded-lg text-xs font-bold border border-amber-400/20">SUPPORT 24/7</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="font-work-sans text-sm leading-relaxed text-slate-500">
+                © 2024 MBTV Kenya. The Digital Minaret. All rights reserved.
+            </p>
+<div class="flex gap-8">
+<span class="text-xs text-slate-700">English (Kenya)</span>
+<span class="text-xs text-slate-700">Arabic (Saudi Arabia)</span>
+</div>
+</div>
+</footer>
+</body></html>

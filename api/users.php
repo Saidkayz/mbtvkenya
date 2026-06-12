@@ -1,0 +1,336 @@
+<?php
+// MBTV Kenya - Users API Handler
+// Handles user registration, login, and OTP verification
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error) {
+        http_response_code(500);
+        @file_put_contents(__DIR__ . '/api_error_log.txt', date('c') . ' ' . print_r($error, true) . "\n", FILE_APPEND);
+        if (!headers_sent()) {
+            header('Content-Type: application/json');
+        }
+        echo json_encode(['error' => 'Internal server error', 'detail' => $error['message']]);
+    }
+});
+
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+// Handle preflight request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+require_once('config.php');
+$conn = getDbConnection();
+
+// Read input data once
+$rawInput = file_get_contents('php://input');
+$input = json_decode($rawInput, true);
+if (!is_array($input)) {
+    $input = [];
+}
+
+// Get request method and action
+$method = $_SERVER['REQUEST_METHOD'];
+$action = isset($_GET['action']) ? $_GET['action'] : (isset($input['action']) ? $input['action'] : 'unknown');
+
+// Only accept POST requests
+if ($method !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['error' => 'Method not allowed. Use POST. Method received: ' . $method . '. Look at browser Network tab ']);
+    $conn->close();
+    exit;
+}
+
+// Route requests based on action
+switch ($action) {
+    case 'register':
+        handleRegister($conn, $input);
+        break;
+    case 'verify-otp':
+        handleVerifyOtp($conn, $input);
+        break;
+    case 'login':
+        handleLogin($conn, $input);
+        break;
+    default:
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid action: ' . $action . '. Expected: register, verify-otp, or login']);
+        break;
+}
+
+$conn->close();
+
+/**
+ * Handle user registration
+ */
+function handleRegister($conn, $data) {
+    // Validate required fields
+    $required = ['full_name', 'username', 'email', 'phone', 'password', 'role_id'];
+    foreach ($required as $field) {
+        if (empty($data[$field])) {
+            http_response_code(400);
+            echo json_encode(['error' => "Missing required field: $field"]);
+            return;
+        }
+    }
+
+    $fullName = trim($data['full_name']);
+    $username = trim($data['username']);
+    $email = trim($data['email']);
+    $phone = trim($data['phone']);
+    $password = $data['password'];
+    $roleId = (int)$data['role_id'];
+
+    // If there is no admin user yet, make the first registration an admin account.
+    $adminCheck = $conn->prepare('SELECT id FROM users WHERE role_id = 1 LIMIT 1');
+    $adminCheck->execute();
+    $adminResult = $adminCheck->get_result();
+    $hasAdmin = $adminResult->num_rows > 0;
+    $adminCheck->close();
+
+    if (!$hasAdmin) {
+        $roleId = 1;
+    } elseif ($roleId === 1) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Admin accounts must be created by an existing administrator']);
+        return;
+    }
+
+    // Validate input
+    if (strlen($fullName) < 2) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Full name is required']);
+        return;
+    }
+
+    // Verify role exists
+    $roleCheck = $conn->prepare('SELECT id FROM roles WHERE id = ?');
+    $roleCheck->bind_param('i', $roleId);
+    $roleCheck->execute();
+    $roleResult = $roleCheck->get_result();
+    if ($roleResult->num_rows === 0) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid role selected']);
+        $roleCheck->close();
+        return;
+    }
+    $roleCheck->close();
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid email format']);
+        return;
+    }
+
+    if (strlen($password) < 6) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Password must be at least 6 characters']);
+        return;
+    }
+
+    // Check if username already exists
+    $stmt = $conn->prepare('SELECT id FROM users WHERE username = ?');
+    $stmt->bind_param('s', $username);
+    $stmt->execute();
+    if ($stmt->get_result()->num_rows > 0) {
+        http_response_code(409);
+        echo json_encode(['error' => 'Username already exists']);
+        $stmt->close();
+        return;
+    }
+    $stmt->close();
+
+    // Check if email already exists
+    $stmt = $conn->prepare('SELECT id FROM users WHERE email = ?');
+    $stmt->bind_param('s', $email);
+    $stmt->execute();
+    if ($stmt->get_result()->num_rows > 0) {
+        http_response_code(409);
+        echo json_encode(['error' => 'Email already registered']);
+        $stmt->close();
+        return;
+    }
+    $stmt->close();
+
+    // Generate OTP
+    $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+    $verificationId = bin2hex(random_bytes(16));
+    $expiresAt = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+
+    // Insert into temporary verification table
+    $stmt = $conn->prepare(
+        'INSERT INTO user_verifications (verification_id, username, full_name, email, phone, password_hash, role_id, otp, otp_expires_at) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    );
+    $stmt->bind_param('sssssisss', $verificationId, $username, $fullName, $email, $phone, $hashedPassword, $roleId, $otp, $expiresAt);
+
+    if ($stmt->execute()) {
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'verification_id' => $verificationId,
+            'contact_message' => "Verification code sent to $phone"
+        ]);
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Registration failed: ' . $stmt->error]);
+    }
+    $stmt->close();
+}
+
+/**
+ * Handle OTP verification
+ */
+function handleVerifyOtp($conn, $data) {
+    if (empty($data['verification_id']) || empty($data['otp'])) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Missing verification_id or otp']);
+        return;
+    }
+
+    $verificationId = $data['verification_id'];
+    $otp = trim($data['otp']);
+
+    // Retrieve pending verification
+    $stmt = $conn->prepare(
+        'SELECT id, username, full_name, email, phone, password_hash, role_id, otp, otp_expires_at 
+         FROM user_verifications 
+         WHERE verification_id = ? AND verified_at IS NULL'
+    );
+    $stmt->bind_param('s', $verificationId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Verification not found or already completed']);
+        $stmt->close();
+        return;
+    }
+
+    $verification = $result->fetch_assoc();
+    $stmt->close();
+
+    // Check OTP expiry
+    if (strtotime($verification['otp_expires_at']) < time()) {
+        http_response_code(400);
+        echo json_encode(['error' => 'OTP has expired']);
+        return;
+    }
+
+    // Verify OTP
+    if ($verification['otp'] !== $otp) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid OTP']);
+        return;
+    }
+
+    // Create user account
+    $stmt = $conn->prepare(
+        'INSERT INTO users (username, full_name, email, phone, password_hash, role_id, created_at) 
+         VALUES (?, ?, ?, ?, ?, ?, NOW())'
+    );
+    $stmt->bind_param(
+        'sssssi',
+        $verification['username'],
+        $verification['full_name'],
+        $verification['email'],
+        $verification['phone'],
+        $verification['password_hash'],
+        $verification['role_id']
+    );
+
+    if ($stmt->execute()) {
+        $userId = $conn->insert_id;
+        
+        // Mark verification as complete
+        $updateStmt = $conn->prepare(
+            'UPDATE user_verifications SET verified_at = NOW() WHERE verification_id = ?'
+        );
+        $updateStmt->bind_param('s', $verificationId);
+        $updateStmt->execute();
+        $updateStmt->close();
+
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'message' => 'Account verified successfully. You can now log in.',
+            'user_id' => $userId
+        ]);
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to create user account: ' . $stmt->error]);
+    }
+    $stmt->close();
+}
+
+/**
+ * Handle user login
+ */
+function handleLogin($conn, $data) {
+    if (empty($data['username']) || empty($data['password'])) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Missing username or password']);
+        return;
+    }
+
+    $username = trim($data['username']);
+    $password = $data['password'];
+
+    // Get user by username
+    $stmt = $conn->prepare(
+        'SELECT id, username, email, password_hash, role_id FROM users WHERE username = ? LIMIT 1'
+    );
+    $stmt->bind_param('s', $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Invalid username or password']);
+        $stmt->close();
+        return;
+    }
+
+    $user = $result->fetch_assoc();
+    $stmt->close();
+
+    // Verify password
+    if (!password_verify($password, $user['password_hash'])) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Invalid username or password']);
+        return;
+    }
+
+    // Start session
+    session_start();
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['username'] = $user['username'];
+    $_SESSION['role_id'] = $user['role_id'];
+
+    http_response_code(200);
+    echo json_encode([
+        'success' => true,
+        'message' => 'Login successful',
+        'user' => [
+            'id' => $user['id'],
+            'username' => $user['username'],
+            'email' => $user['email'],
+            'role_id' => $user['role_id']
+        ]
+    ]);
+}
+
+$conn->close();
+?>

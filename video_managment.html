@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Video Asset Management | MBTV Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Work+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed-dim": "#e3c286",
+                        "inverse-primary": "#356382",
+                        "on-error": "#690005",
+                        "surface-container-highest": "#333538",
+                        "on-secondary-container": "#d4b479",
+                        "on-secondary": "#412d00",
+                        "tertiary-fixed-dim": "#e9c349",
+                        "surface-dim": "#111316",
+                        "on-secondary-fixed-variant": "#5a4313",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "surface-tint": "#9fccef",
+                        "on-background": "#e2e2e6",
+                        "primary": "#9fccef",
+                        "on-tertiary-container": "#4e3d00",
+                        "tertiary": "#e9c349",
+                        "surface-container-lowest": "#0c0e11",
+                        "primary-fixed-dim": "#9fccef",
+                        "secondary-container": "#5c4515",
+                        "surface-container-high": "#282a2d",
+                        "on-primary-container": "#90bde0",
+                        "outline": "#8b9198",
+                        "inverse-surface": "#e2e2e6",
+                        "tertiary-fixed": "#624e00",
+                        "surface-container": "#1e2023",
+                        "inverse-on-surface": "#2f3034",
+                        "secondary-fixed": "#ffdea4",
+                        "background": "#111316",
+                        "on-surface-variant": "#c1c7ce",
+                        "primary-fixed": "#c9e6ff",
+                        "surface-variant": "#333538",
+                        "outline-variant": "#41474d",
+                        "on-primary-fixed-variant": "#184b69",
+                        "on-primary": "#00344e",
+                        "primary-container": "#1b4d6b",
+                        "on-error-container": "#ffdad6",
+                        "surface": "#111316",
+                        "surface-bright": "#37393d",
+                        "error-container": "#93000a",
+                        "error": "#ffb4ab",
+                        "secondary": "#e3c286",
+                        "on-surface": "#e2e2e6",
+                        "on-tertiary-fixed": "#241a00",
+                        "tertiary-container": "#cca730",
+                        "on-primary-fixed": "#001e2f",
+                        "on-secondary-fixed": "#261900",
+                        "surface-container-low": "#1a1c1f",
+                        "on-tertiary": "#3c2f00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Work Sans"],
+                        "label": ["Work Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background-color: #111316;
+        }
+        h1, h2, h3, .font-headline {
+            font-family: 'Manrope', sans-serif;
+        }
+        ::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary/30">
+<!-- SideNavBar -->
+<aside class="bg-slate-950 h-screen w-64 fixed left-0 top-0 flex flex-col h-full py-6 z-50 font-manrope">
+<div class="px-6 mb-10">
+<div class="flex items-center gap-3">
+<img alt="MBTV Kenya Logo" class="h-24 w-auto object-contain" src="Design/mbtv-kenya.png"/>
+<div>
+<h1 class="text-xl font-bold text-sky-200 tracking-wider">MBTV</h1>
+<p class="font-manrope tracking-tight font-medium text-xs text-slate-500 mt-1">Kenya Portal</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-6">
+<ul class="space-y-2">
+<li><a href="admin.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><span class="material-symbols-outlined">dashboard</span>Dashboard</a></li>
+<li><a href="equipment_management.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><span class="material-symbols-outlined">build</span>Equipment Management</a></li>
+<li><a href="sms_notification.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><span class="material-symbols-outlined">sms</span>SMS Notification</a></li>
+<li><a href="video_managment.html" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-sky-900/20 text-sky-300 border-r-4 border-amber-400 transition-colors"><span class="material-symbols-outlined">video_library</span>Video Management</a></li>
+<li><a href="video_reports.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><span class="material-symbols-outlined">analytics</span>Video Reports</a></li>
+<li><a href="video_search.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><span class="material-symbols-outlined">search</span>Video Search</a></li>
+</ul>
+</nav>
+<div class="mt-auto pt-6 border-t border-slate-900 space-y-1">
+<a class="flex items-center px-6 py-3 text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition-colors duration-200 font-manrope tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="settings">settings</span>
+                Settings
+            </a>
+<a class="flex items-center px-6 py-3 text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition-colors duration-200 font-manrope tracking-tight font-medium" href="index.html">
+<span class="material-symbols-outlined mr-3" data-icon="logout">logout</span>
+                Logout
+            </a>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="ml-64 min-h-screen pb-20">
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] z-40 bg-slate-950/80 backdrop-blur-xl flex justify-between items-center h-16 px-8">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
+<input class="w-full bg-slate-900/50 border-none rounded-lg py-2 pl-10 text-xs font-manrope uppercase tracking-widest text-slate-300 placeholder:text-slate-600 focus:ring-1 focus:ring-sky-300/30" placeholder="Search resources..." type="text"/>
+</div>
+</div>
+<div class="flex items-center space-x-6">
+<div class="flex space-x-4">
+<span class="material-symbols-outlined text-sky-300 cursor-pointer active:opacity-70 hover:text-amber-200 transition-opacity" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-sky-300 cursor-pointer active:opacity-70 hover:text-amber-200 transition-opacity" data-icon="help_outline">help_outline</span>
+</div>
+<div class="flex items-center space-x-3">
+<div class="text-right hidden lg:block">
+<p class="font-manrope uppercase tracking-widest text-[10px] text-slate-500 leading-none">Administrator</p>
+<p class="font-manrope font-bold text-sky-300 text-xs">Admin Console</p>
+</div>
+<img alt="Administrator Profile Photo" class="w-10 h-10 rounded-full border-2 border-sky-900/50 object-cover" data-alt="Close up professional portrait of a male administrator in dark attire against a neutral studio background, moody lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFy6G4DfT6gZMSHXttw9sS9tP69o7ECuFjPIgtiMrpHhzPMMRyXEEfQbQTDa8pEm8d-WV12_L0Z0ymPcz3XwZoqoiIWRm81lm_TOZdUSpEqu_mYD1ZBUZsfmShuTrNq7cLAmUpFGHqgL-YSBY8sr5dB7ZpekOqF_lf0fR0wy1KvxlEGKkuBW-RLdeCEcYQZGiQd05Ob2jKUrlHP1juNlhR9MoLdlTD6clWhwGCSHRNUHIqPALp7C2hTppuWWtPvVn0Gi9of4Bew6g"/>
+</div>
+</div>
+</header>
+<!-- Page Canvas -->
+<div class="pt-24 px-10">
+<!-- Header Section -->
+<div class="mb-10 flex justify-between items-end">
+<div>
+<span class="text-secondary-fixed-dim font-headline font-bold uppercase tracking-[0.2em] text-xs">Digital Asset Control</span>
+<h2 class="text-4xl font-headline font-extrabold text-white mt-2">Video Asset Management</h2>
+</div>
+<div class="flex gap-4">
+<button class="bg-surface-container-high text-on-surface-variant font-headline font-bold py-3 px-6 rounded-lg text-sm flex items-center hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined mr-2" data-icon="file_download">file_download</span>
+                        Export Catalog
+                    </button>
+<button class="bg-gradient-to-tr from-primary-container to-primary text-on-primary font-headline font-bold py-3 px-6 rounded-lg text-sm flex items-center hover:opacity-90 transition-opacity shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined mr-2" data-icon="add_circle">add_circle</span>
+                        Batch Upload
+                    </button>
+</div>
+</div>
+<div class="grid grid-cols-1 gap-8">
+<!-- Section 1: Register New Video Form -->
+<section class="bg-surface-container-low rounded-xl p-8 shadow-2xl relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] -mr-32 -mt-32 rounded-full"></div>
+<div class="flex items-center mb-8">
+<div class="w-10 h-10 bg-amber-400/10 flex items-center justify-center rounded-lg mr-4">
+<span class="material-symbols-outlined text-amber-400" data-icon="edit_note">edit_note</span>
+</div>
+<h3 class="text-xl font-headline font-bold text-white">Register New Video</h3>
+</div>
+<form id="video-asset-form" class="space-y-8 relative z-10">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
+<!-- Video Code -->
+<div class="space-y-2">
+<label class="block text-xs font-headline font-bold uppercase tracking-widest text-slate-500">Video Code</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-lg p-4 text-sm text-on-surface focus:ring-1 focus:ring-primary/40 placeholder:text-slate-700" placeholder="MBTV-2024-001" type="text"/>
+</div>
+<!-- Name -->
+<div class="space-y-2">
+<label class="block text-xs font-headline font-bold uppercase tracking-widest text-slate-500">Video Name</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-lg p-4 text-sm text-on-surface focus:ring-1 focus:ring-primary/40 placeholder:text-slate-700" placeholder="Enter production title" type="text"/>
+</div>
+<!-- Date -->
+<div class="space-y-2">
+<label for="video-date" class="block text-xs font-headline font-bold uppercase tracking-widest text-slate-500">Date</label>
+<input id="video-date" class="w-full bg-surface-container-lowest border-none rounded-lg p-4 text-sm text-on-surface focus:ring-1 focus:ring-primary/40" type="date"/>
+</div>
+<!-- Place Shot -->
+<div class="space-y-2">
+<label class="block text-xs font-headline font-bold uppercase tracking-widest text-slate-500">Place Shot</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute right-4 top-4 text-slate-600 text-lg" data-icon="location_on">location_on</span>
+<input class="w-full bg-surface-container-lowest border-none rounded-lg p-4 pr-12 text-sm text-on-surface focus:ring-1 focus:ring-primary/40 placeholder:text-slate-700" placeholder="e.g. Nairobi Studio A" type="text"/>
+</div>
+</div>
+<!-- Folder Path -->
+<div class="lg:col-span-2 space-y-2">
+<label class="block text-xs font-headline font-bold uppercase tracking-widest text-slate-500">Folder Path</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-4 text-slate-600 text-lg" data-icon="folder">folder</span>
+<input class="w-full bg-surface-container-lowest border-none rounded-lg p-4 pl-12 text-sm text-on-surface focus:ring-1 focus:ring-primary/40 placeholder:text-slate-700" placeholder="nas://archive/productions/2024/january/" type="text"/>
+</div>
+</div>
+<!-- Description -->
+<div class="md:col-span-2 lg:col-span-3 space-y-2">
+<label class="block text-xs font-headline font-bold uppercase tracking-widest text-slate-500">Description</label>
+<textarea class="w-full bg-surface-container-lowest border-none rounded-lg p-4 text-sm text-on-surface focus:ring-1 focus:ring-primary/40 placeholder:text-slate-700 resize-none" placeholder="Summary of video content, key topics, and theological notes..." rows="3"></textarea>
+</div>
+</div>
+<div class="pt-4 flex justify-end">
+<button type="submit" class="bg-primary hover:bg-primary-fixed-dim text-on-primary font-headline font-extrabold uppercase tracking-widest text-xs px-10 py-4 rounded-lg transition-all duration-300 shadow-xl shadow-primary/10">
+                                Register Video Asset
+                            </button>
+</div>
+</form>
+</section>
+<!-- Section 2: Media Library Table -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-primary/10 flex items-center justify-center rounded-lg mr-4">
+<span class="material-symbols-outlined text-primary" data-icon="grid_view">grid_view</span>
+</div>
+<h3 class="text-xl font-headline font-bold text-white">Media Library</h3>
+</div>
+<div class="flex bg-surface-container-low p-1 rounded-lg">
+<button class="px-4 py-2 bg-surface-container-highest text-white rounded-md text-xs font-bold uppercase tracking-widest">All Assets</button>
+<button class="px-4 py-2 text-slate-500 rounded-md text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">Pending</button>
+<button class="px-4 py-2 text-slate-500 rounded-md text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">Archived</button>
+</div>
+</div>
+<div class="overflow-hidden rounded-xl border border-outline-variant/10">
+<table class="w-full text-left border-collapse bg-surface-container-low">
+<thead>
+<tr class="border-b border-outline-variant/20 bg-surface-container-low">
+<th class="px-8 py-5 text-[10px] font-headline font-bold uppercase tracking-[0.2em] text-slate-500">Code</th>
+<th class="px-8 py-5 text-[10px] font-headline font-bold uppercase tracking-[0.2em] text-slate-500">Video Name</th>
+<th class="px-8 py-5 text-[10px] font-headline font-bold uppercase tracking-[0.2em] text-slate-500">Location</th>
+<th class="px-8 py-5 text-[10px] font-headline font-bold uppercase tracking-[0.2em] text-slate-500">Date</th>
+<th class="px-8 py-5 text-[10px] font-headline font-bold uppercase tracking-[0.2em] text-slate-500">Status</th>
+<th class="px-8 py-5 text-[10px] font-headline font-bold uppercase tracking-[0.2em] text-slate-500 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<!-- Row 1 -->
+<tr class="group hover:bg-surface-container transition-colors">
+<td class="px-8 py-5">
+<span class="font-manrope font-bold text-sky-200 text-sm">MB-VID-992</span>
+</td>
+<td class="px-8 py-5">
+<div>
+<p class="text-white font-semibold text-sm">The Path of Patience</p>
+<p class="text-[10px] text-slate-500 mt-0.5">MP4 • 4K UHD • 1.2 GB</p>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="flex items-center text-slate-400 text-sm">
+<span class="material-symbols-outlined text-[16px] mr-2" data-icon="pin_drop">pin_drop</span>
+                                            Mombasa Main Masjid
+                                        </div>
+</td>
+<td class="px-8 py-5 text-slate-400 text-sm">12 Oct, 2023</td>
+<td class="px-8 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-green-500/10 text-green-400">
+                                            Published
+                                        </span>
+</td>
+<td class="px-8 py-5 text-right space-x-2">
+<button class="p-2 text-slate-500 hover:text-sky-300 transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-error transition-colors">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="group hover:bg-surface-container transition-colors">
+<td class="px-8 py-5">
+<span class="font-manrope font-bold text-sky-200 text-sm">MB-VID-104</span>
+</td>
+<td class="px-8 py-5">
+<div>
+<p class="text-white font-semibold text-sm">Understanding Zakat</p>
+<p class="text-[10px] text-slate-500 mt-0.5">MOV • HD • 850 MB</p>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="flex items-center text-slate-400 text-sm">
+<span class="material-symbols-outlined text-[16px] mr-2" data-icon="pin_drop">pin_drop</span>
+                                            Nairobi Studio B
+                                        </div>
+</td>
+<td class="px-8 py-5 text-slate-400 text-sm">05 Nov, 2023</td>
+<td class="px-8 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-amber-400/10 text-amber-400">
+                                            Processing
+                                        </span>
+</td>
+<td class="px-8 py-5 text-right space-x-2">
+<button class="p-2 text-slate-500 hover:text-sky-300 transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-error transition-colors">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="group hover:bg-surface-container transition-colors">
+<td class="px-8 py-5">
+<span class="font-manrope font-bold text-sky-200 text-sm">MB-VID-088</span>
+</td>
+<td class="px-8 py-5">
+<div>
+<p class="text-white font-semibold text-sm">Ramadan Series Preview</p>
+<p class="text-[10px] text-slate-500 mt-0.5">MP4 • 4K UHD • 2.1 GB</p>
+</div>
+</td>
+<td class="px-8 py-5">
+<div class="flex items-center text-slate-400 text-sm">
+<span class="material-symbols-outlined text-[16px] mr-2" data-icon="pin_drop">pin_drop</span>
+                                            Nakuru Hub
+                                        </div>
+</td>
+<td class="px-8 py-5 text-slate-400 text-sm">28 Nov, 2023</td>
+<td class="px-8 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-500/20 text-slate-400">
+                                            Archived
+                                        </span>
+</td>
+<td class="px-8 py-5 text-right space-x-2">
+<button class="p-2 text-slate-500 hover:text-sky-300 transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-error transition-colors">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="bg-surface-container-low px-8 py-4 flex items-center justify-between border-t border-outline-variant/10">
+<p class="text-xs text-slate-500">Showing <span class="text-white font-bold">1 - 3</span> of <span class="text-white font-bold">142</span> assets</p>
+<div class="flex space-x-2">
+<button class="w-8 h-8 flex items-center justify-center rounded bg-surface-container-highest text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-primary text-on-primary font-bold text-xs">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-surface-container-highest text-slate-400 hover:text-white transition-colors font-bold text-xs">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-surface-container-highest text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Status Insights (Asymmetric Extra Component) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+<div class="bg-surface-container-low p-6 rounded-xl border-l-4 border-primary">
+<p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Storage Utilization</p>
+<div class="mt-2 flex items-end justify-between">
+<h4 class="text-2xl font-headline font-extrabold text-white">4.2 TB</h4>
+<span class="text-primary text-xs font-bold mb-1">68% of 6TB</span>
+</div>
+<div class="w-full bg-slate-900 h-1.5 rounded-full mt-3 overflow-hidden">
+<div class="bg-primary h-full w-[68%]"></div>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border-l-4 border-amber-400">
+<p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Recent Processing</p>
+<div class="mt-2 flex items-end justify-between">
+<h4 class="text-2xl font-headline font-extrabold text-white">12 Files</h4>
+<span class="text-amber-400 text-xs font-bold mb-1">Queue active</span>
+</div>
+<div class="mt-3 flex -space-x-2">
+<img alt="Video editor thumbnail" class="w-6 h-6 rounded-full border border-surface" data-alt="Small thumbnail of video editor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiKjBd1D01s3ApZpVeFx-rpDOIW4UXirCtfsXqw2ocNewEKd5mf8YU-ndIpNWPkfYbI4NwUn9o2yxTPNuzKYJuUQmNztIvDMai3isKUn5swIYX484BL4LJpQOY7Idu_UWpOtKrdPS3VlPoTYwr0ih3NStwGC53zWp29Vjr16l8TaM0JGgQkEh3dyIe5cyHelZzsDWGqUHDzGex59Vwv7LELjZ6kzFAEAssxBJ-hnLdzuclx45Gh40J5ROXshxSiQodQBe4QQJKa3Y"/>
+<img alt="Director thumbnail" class="w-6 h-6 rounded-full border border-surface" data-alt="Small thumbnail of director" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQaEwNSGRNZKkIV0P97bF0VNepMng_xJ0fMG46thIkrAtm2pQAwmtmkYKEYJxxdypGkTCU6YEiI7Y17yQwnB7oGo81ZdUDnzqaKmUNPU4BKWqc5ISXd8bmIy66JYC6s8_EI2UlzL7qMKkIP0S3IlZ8h1bEKFQ9dQk4Kh99SEairwLcvXQqsTJ76v3SWMi2LCxBF4oxnxo0BD9wQuqoWH37y2QZ85WavsBxfQeJ9ay8LoiQ-xIySxWkztaTfEYBMwWmU_KDXCm10Dk"/>
+<div class="w-6 h-6 rounded-full bg-slate-800 border border-surface flex items-center justify-center text-[8px] font-bold">+9</div>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border-l-4 border-secondary">
+<p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Top Regional Archive</p>
+<div class="mt-2 flex items-end justify-between">
+<h4 class="text-2xl font-headline font-extrabold text-white">Nairobi</h4>
+<span class="text-secondary text-xs font-bold mb-1">42% of total</span>
+</div>
+<p class="text-[10px] text-slate-500 mt-4 italic font-manrope">Auto-synced with primary NAS at 02:00 AM</p>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Shared Footer Component -->
+<footer class="w-full py-8 bg-slate-950 flex flex-col items-center gap-4 w-full">
+<div class="flex flex-wrap justify-center gap-6 px-4">
+<a class="font-sans text-xs uppercase tracking-widest text-slate-500 hover:text-amber-200 transition-colors" href="#">Privacy Policy</a>
+<a class="font-sans text-xs uppercase tracking-widest text-slate-500 hover:text-amber-200 transition-colors" href="#">Terms of Service</a>
+<a class="font-sans text-xs uppercase tracking-widest text-slate-500 hover:text-amber-200 transition-colors" href="#">Security Protocol</a>
+</div>
+<p class="font-sans text-xs uppercase tracking-widest text-sky-900 text-center px-4">
+© 2026 mbtvkenya all rights Reserved
+</p>
+</footer>
+<script src="dashboard.js"></script>
+</body></html>

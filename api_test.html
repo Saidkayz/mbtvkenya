@@ -1,0 +1,119 @@
+<html>
+<head>
+<title>API Test</title>
+<style>
+body { font-family: monospace; margin: 20px; background: #1a1a1a; color: #0f0; }
+.test { margin: 20px 0; padding: 10px; border: 1px solid #0f0; }
+.pass { color: #0f0; }
+.fail { color: #f00; }
+button { padding: 10px; margin: 5px; cursor: pointer; }
+div { white-space: pre-wrap; overflow-x: auto; background: #222; padding: 10px; margin: 10px 0; }
+</style>
+</head>
+<body>
+
+<h2>API Connectivity Test</h2>
+
+<div class="test">
+<button onclick="testDebug()">Test Debug (GET to debug.php)</button>
+<button onclick="testDebugPost()">Test Debug (POST to debug.php)</button>
+<button onclick="testGet()">Test GET Request</button>
+<button onclick="testPost()">Test POST Request (Login)</button>
+<button onclick="testSignup()">Test POST Request (Signup)</button>
+<button onclick="clearResults()">Clear Results</button>
+</div>
+
+<div id="results"></div>
+
+<script>
+async function testDebug() {
+    const res = document.getElementById('results');
+    res.innerHTML += '--- DEBUG GET /api/debug.php ---\n';
+    try {
+        const response = await fetch('api/debug.php', { method: 'GET' });
+        res.innerHTML += `Status: ${response.status}\n`;
+        const text = await response.text();
+        res.innerHTML += `Response: ${text}\n\n`;
+    } catch (e) {
+        res.innerHTML += `Error: ${e.message}\n\n`;
+    }
+}
+
+async function testDebugPost() {
+    const res = document.getElementById('results');
+    res.innerHTML += '--- DEBUG POST /api/debug.php ---\n';
+    try {
+        const response = await fetch('api/debug.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ test: 'data' })
+        });
+        res.innerHTML += `Status: ${response.status}\n`;
+        const text = await response.text();
+        res.innerHTML += `Response: ${text}\n\n`;
+    } catch (e) {
+        res.innerHTML += `Error: ${e.message}\n\n`;
+    }
+}
+
+async function testGet() {
+    const res = document.getElementById('results');
+    res.innerHTML += '--- GET /api/users.php ---\n';
+    try {
+        const response = await fetch('api/users.php', { method: 'GET' });
+        res.innerHTML += `Status: ${response.status}\n`;
+        const text = await response.text();
+        res.innerHTML += `Response: ${text}\n\n`;
+    } catch (e) {
+        res.innerHTML += `Error: ${e.message}\n\n`;
+    }
+}
+
+async function testPost() {
+    const res = document.getElementById('results');
+    res.innerHTML += '--- POST /api/users.php (missing action) ---\n';
+    try {
+        const response = await fetch('api/users.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ test: 'data' })
+        });
+        res.innerHTML += `Status: ${response.status}\n`;
+        const text = await response.text();
+        res.innerHTML += `Response: ${text}\n\n`;
+    } catch (e) {
+        res.innerHTML += `Error: ${e.message}\n\n`;
+    }
+}
+
+async function testSignup() {
+    const res = document.getElementById('results');
+    res.innerHTML += '--- POST /api/users.php?action=register (minimal test) ---\n';
+    try {
+        const response = await fetch('api/users.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'register',
+                username: 'test',
+                email: 'test@test.com',
+                phone: '1234567890',
+                password: 'password123',
+                role_id: 2
+            })
+        });
+        res.innerHTML += `Status: ${response.status}\n`;
+        const text = await response.text();
+        res.innerHTML += `Response: ${text}\n\n`;
+    } catch (e) {
+        res.innerHTML += `Error: ${e.message}\n\n`;
+    }
+}
+
+function clearResults() {
+    document.getElementById('results').innerHTML = '';
+}
+</script>
+
+</body>
+</html>

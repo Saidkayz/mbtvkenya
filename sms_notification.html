@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SMS Notification Configuration | MediaFlow Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Work+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed": "#c9e6ff",
+                    "surface": "#111316",
+                    "on-tertiary": "#3c2f00",
+                    "on-primary": "#00344e",
+                    "inverse-on-surface": "#2f3034",
+                    "tertiary-container": "#cca730",
+                    "surface-container-lowest": "#0c0e11",
+                    "secondary-fixed": "#ffdea4",
+                    "outline-variant": "#41474d",
+                    "inverse-primary": "#356382",
+                    "background": "#111316",
+                    "on-error-container": "#ffdad6",
+                    "surface-bright": "#37393d",
+                    "surface-variant": "#333538",
+                    "secondary-fixed-dim": "#e3c286",
+                    "on-primary-fixed": "#001e2f",
+                    "on-secondary-fixed": "#261900",
+                    "on-secondary": "#412d00",
+                    "on-secondary-container": "#d4b479",
+                    "primary-fixed-dim": "#9fccef",
+                    "secondary-container": "#5c4515",
+                    "on-primary-container": "#90bde0",
+                    "inverse-surface": "#e2e2e6",
+                    "tertiary-fixed-dim": "#e9c349",
+                    "error-container": "#93000a",
+                    "tertiary-fixed": "#ffe088",
+                    "on-tertiary-fixed": "#241a00",
+                    "primary-container": "#1b4d6b",
+                    "secondary": "#e3c286",
+                    "tertiary": "#e9c349",
+                    "on-error": "#690005",
+                    "on-background": "#e2e2e6",
+                    "surface-tint": "#9fccef",
+                    "error": "#ffb4ab",
+                    "surface-container": "#1e2023",
+                    "on-tertiary-container": "#4e3d00",
+                    "on-tertiary-fixed-variant": "#574500",
+                    "surface-container-highest": "#333538",
+                    "primary": "#9fccef",
+                    "on-primary-fixed-variant": "#184b69",
+                    "outline": "#8b9198",
+                    "on-secondary-fixed-variant": "#5a4313",
+                    "surface-dim": "#111316",
+                    "on-surface": "#e2e2e6",
+                    "surface-container-high": "#282a2d",
+                    "surface-container-low": "#1a1c1f",
+                    "on-surface-variant": "#c1c7ce"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Work Sans"],
+                    "label": ["Work Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Work Sans', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-container selection:text-primary-fixed min-h-screen">
+<!-- SideNavBar Shell -->
+<aside class="h-screen w-64 border-r border-white/5 bg-slate-950 flex flex-col py-6 px-4 shrink-0 fixed left-0 top-0 z-40 font-manrope">
+<div class="px-6 mb-10">
+<div class="flex items-center gap-3">
+<img alt="MBTV Kenya Logo" class="h-24 w-auto object-contain" data-alt="actual MBTV Kenya logo" src="Design/mbtv-kenya.png"/>
+<div>
+<div class="text-lg font-black text-white leading-tight">MBTV</div>
+<div class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mt-1">Kenya Portal</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-6">
+<ul class="space-y-2">
+<li><a href="admin.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><span class="material-symbols-outlined">dashboard</span>Dashboard</a></li>
+<li><a href="equipment_management.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><span class="material-symbols-outlined">build</span>Equipment Management</a></li>
+<li><a href="sms_notification.html" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-sky-900/20 text-amber-400 transition-colors"><span class="material-symbols-outlined">sms</span>SMS Notification</a></li>
+<li><a href="video_managment.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><span class="material-symbols-outlined">video_library</span>Video Management</a></li>
+<li><a href="video_reports.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><span class="material-symbols-outlined">analytics</span>Video Reports</a></li>
+<li><a href="video_search.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><span class="material-symbols-outlined">search</span>Video Search</a></li>
+</ul>
+</nav>
+<div class="mt-auto pt-6 border-t border-white/5 space-y-1">
+<button class="w-full bg-primary text-on-primary py-2.5 rounded-lg font-bold text-sm mb-4 active:scale-95 transition-all">
+                New Broadcast
+            </button>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:bg-white/5 hover:text-white transition-all text-sm font-medium rounded-lg" href="#">
+<span class="material-symbols-outlined text-lg">help</span>
+                Support
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:bg-white/5 hover:text-white transition-all text-sm font-medium rounded-lg" href="index.html">
+<span class="material-symbols-outlined text-lg">logout</span>
+                Logout
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-64 min-h-screen flex flex-col">
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 right-0 left-64 z-30 flex justify-between items-center px-8 h-16 bg-slate-900/80 backdrop-blur-md border-b border-white/10 shadow-xl shadow-black/20">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tight text-sky-200 font-headline">MediaFlow Admin</span>
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-slate-400 hover:text-slate-200 transition-colors text-sm font-medium" href="#">Dashboard</a>
+<a class="text-slate-400 hover:text-slate-200 transition-colors text-sm font-medium" href="#">Inventory</a>
+<a class="text-slate-400 hover:text-slate-200 transition-colors text-sm font-medium" href="#">Schedule</a>
+<a class="text-slate-400 hover:text-slate-200 transition-colors text-sm font-medium" href="#">Reports</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group">
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-sky-400 p-2 rounded-full hover:bg-white/5 transition-colors">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-amber-500 rounded-full border border-slate-900"></span>
+</div>
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-sky-400 p-2 rounded-full hover:bg-white/5 transition-colors">settings</span>
+<div class="h-8 w-8 rounded-full bg-surface-container-highest overflow-hidden border border-white/10">
+<img alt="Administrator Avatar" class="w-full h-full object-cover" data-alt="professional portrait of a tech administrator in a modern office environment with soft bokeh background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfkwOJ3qNPL8R4MIs4ybb55quoDfgW1XV4q842ZoEw_-mGCNt8NuhmeTI2U-n0rHEigWgTKuXAG0AoATpkHozdggkLpWXyWwHMf-BAIxyfc-QcrSporD6RyMS2wG_XYOxBiE-WcWFx8BZ96OHVvpZQIRRzCPfJ4LxW2RGwa4asTadCYlkZW0zc1RmOPl5ZjOw8kk9W_nChMxqIaT4ECzkBgfsYNge4LNz7gIfBrZ6N5Dfz7gGXJEdOu0_S1y6FUW5aFwGCsN-affA"/>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="mt-16 p-8 flex-1 max-w-7xl mx-auto w-full space-y-8">
+<div class="flex flex-col gap-1">
+<h1 class="text-3xl font-extrabold text-white font-headline tracking-tight">SMS Configuration</h1>
+<p class="text-on-surface-variant max-w-2xl text-sm leading-relaxed">Manage your communication bridge through Africa's Talking API. Configure automated alerts for equipment handling and monitor delivery logs.</p>
+</div>
+<!-- Bento Layout Section 1: Integration & Rules -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- API Integration Card (Col 7) -->
+<section class="lg:col-span-7 bg-surface-container-low rounded-xl p-6 border border-white/5 shadow-2xl relative overflow-hidden">
+<div class="absolute top-0 right-0 p-8 opacity-5">
+<span class="material-symbols-outlined text-9xl">api</span>
+</div>
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-primary-container/30 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">hub</span>
+</div>
+<h3 class="font-headline text-lg font-bold">Africa's Talking API</h3>
+</div>
+<div class="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold border border-emerald-500/20">
+<span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                            Connected
+                        </div>
+</div>
+<form id="sms-settings-form" class="space-y-5">
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1.5">
+<label for="sms-username" class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-1">Username</label>
+<input id="sms-username" class="w-full bg-surface-container-lowest border-0 focus:ring-1 focus:ring-primary text-white rounded-lg px-4 py-2.5 text-sm font-mono placeholder:text-slate-600 transition-all" type="text" value="mbtv_kenya_admin" title="SMS API username"/>
+</div>
+<div class="space-y-1.5">
+<label for="sms-sender-id" class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-1">Sender ID / Shortcode</label>
+<input id="sms-sender-id" class="w-full bg-surface-container-lowest border-0 focus:ring-1 focus:ring-primary text-white rounded-lg px-4 py-2.5 text-sm font-mono placeholder:text-slate-600 transition-all" placeholder="MBTV_ALERT" type="text" title="SMS sender ID"/>
+</div>
+</div>
+<div class="space-y-1.5">
+<label for="sms-api-key" class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-1">API Key</label>
+<div class="relative">
+<input id="sms-api-key" class="w-full bg-surface-container-lowest border-0 focus:ring-1 focus:ring-primary text-white rounded-lg px-4 py-2.5 text-sm font-mono transition-all" type="password" value="****************************************" title="SMS API key"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg">visibility_off</span>
+</button>
+</div>
+</div>
+</div>
+<div class="mt-8 flex gap-3">
+<button type="button" data-action="test-sms-connection" class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-primary-container/80 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">sync</span>
+                            Test Connection
+                        </button>
+<button type="submit" data-action="save-sms-settings" class="bg-surface-container-highest text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-white/10 transition-colors">
+                            Save Configuration
+                        </button>
+</div>
+</form>
+</section>
+<!-- Automation Rules (Col 5) -->
+<section class="lg:col-span-5 flex flex-col gap-6">
+<!-- Rule 1 -->
+<div class="bg-surface-container-low rounded-xl border border-white/5 p-6 space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-sky-400">outbox</span>
+<h4 class="font-headline font-bold text-sm text-white">Equipment Check-out Alerts</h4>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" aria-label="Enable Equipment Check-out Alerts"/>
+<div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
+</label>
+</div>
+<div class="space-y-1.5">
+<label class="text-[10px] font-bold text-slate-500 uppercase px-1">Message Template</label>
+<div class="bg-surface-container-lowest p-3 rounded-lg text-xs leading-relaxed font-body text-slate-300 border border-white/5 italic">
+                                "Alert: {equipment} (Qty: {quantity}) has been checked out by {person}."
+                            </div>
+</div>
+<button class="text-xs font-bold text-sky-400 flex items-center gap-1 hover:text-sky-300 transition-colors px-1">
+<span class="material-symbols-outlined text-sm">edit</span>
+                            Customize Template
+                        </button>
+</div>
+<!-- Rule 2 -->
+<div class="bg-surface-container-low rounded-xl border border-white/5 p-6 space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-amber-400">move_to_inbox</span>
+<h4 class="font-headline font-bold text-sm text-white">Equipment Check-in Alerts</h4>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" aria-label="Enable Equipment Check-in Alerts"/>
+<div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
+</label>
+</div>
+<div class="space-y-1.5">
+<label class="text-[10px] font-bold text-slate-500 uppercase px-1">Message Template</label>
+<div class="bg-surface-container-lowest p-3 rounded-lg text-xs leading-relaxed font-body text-slate-300 border border-white/5 italic">
+                                "Confirmation: {equipment} (Qty: {quantity}) has been returned by {person}."
+                            </div>
+</div>
+<button class="text-xs font-bold text-sky-400 flex items-center gap-1 hover:text-sky-300 transition-colors px-1">
+<span class="material-symbols-outlined text-sm">edit</span>
+                            Customize Template
+                        </button>
+</div>
+</section>
+</div>
+<!-- Recent Logs Table Section -->
+<section class="bg-surface-container-low rounded-xl border border-white/5 overflow-hidden shadow-2xl">
+<div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-sky-400">receipt_long</span>
+<h3 class="font-headline text-lg font-bold">Recent SMS Notifications</h3>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg">search</span>
+<input class="bg-surface-container-lowest border-0 rounded-lg pl-10 pr-4 py-1.5 text-sm focus:ring-1 focus:ring-primary w-64 transition-all" placeholder="Search logs..." type="text"/>
+</div>
+<button class="bg-surface-container-highest p-2 rounded-lg hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-lg">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-white/[0.01]">
+<th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-white/5">Date / Time</th>
+<th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-white/5">Recipient</th>
+<th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-white/5">Message Content</th>
+<th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-white/5">Delivery Status</th>
+<th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-white/5">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-4">
+<div class="text-sm font-medium text-white">Oct 24, 2023</div>
+<div class="text-[10px] text-slate-500">14:22:10</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-300 font-mono">+254 712 345 ***</td>
+<td class="px-6 py-4">
+<div class="text-xs text-slate-300 max-w-xs truncate font-body">Alert: Sony FX6 Cinema Camera (Qty: 1) has been checked out by John Doe.</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-emerald-400 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 px-2 py-1 rounded w-fit">
+<span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
+                                        Delivered
+                                    </div>
+</td>
+<td class="px-6 py-4">
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-white/10 rounded">
+<span class="material-symbols-outlined text-sm">info</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-4">
+<div class="text-sm font-medium text-white">Oct 24, 2023</div>
+<div class="text-[10px] text-slate-500">13:05:44</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-300 font-mono">+254 788 123 ***</td>
+<td class="px-6 py-4">
+<div class="text-xs text-slate-300 max-w-xs truncate font-body">Confirmation: Sennheiser G4 Mic (Qty: 2) has been returned by Sarah Ali.</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-emerald-400 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 px-2 py-1 rounded w-fit">
+<span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
+                                        Delivered
+                                    </div>
+</td>
+<td class="px-6 py-4">
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-white/10 rounded">
+<span class="material-symbols-outlined text-sm">info</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-4">
+<div class="text-sm font-medium text-white">Oct 23, 2023</div>
+<div class="text-[10px] text-slate-500">18:45:12</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-300 font-mono">+254 701 998 ***</td>
+<td class="px-6 py-4">
+<div class="text-xs text-slate-300 max-w-xs truncate font-body">Alert: DJI Ronin RS3 (Qty: 1) has been checked out by David Kamau.</div>
+</td>
+<td class="px-6 py-4 relative">
+<div class="flex items-center gap-2 text-error text-[10px] font-bold uppercase tracking-wider bg-error/10 px-2 py-1 rounded w-fit cursor-help group/tooltip">
+<span class="w-1.5 h-1.5 bg-error rounded-full"></span>
+                                        Failed
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block w-48 p-2 bg-error-container text-on-error-container text-[10px] rounded shadow-lg z-50 normal-case leading-tight">
+                                            Error Code 402: Insufficient balance on Africa's Talking account.
+                                        </div>
+</div>
+</td>
+<td class="px-6 py-4">
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-white/10 rounded text-sky-400">
+<span class="material-symbols-outlined text-sm">replay</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-4">
+<div class="text-sm font-medium text-white">Oct 23, 2023</div>
+<div class="text-[10px] text-slate-500">09:12:01</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-300 font-mono">+254 755 444 ***</td>
+<td class="px-6 py-4">
+<div class="text-xs text-slate-300 max-w-xs truncate font-body">Confirmation: LED Panel Kit (Qty: 4) has been returned by Admin.</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-sky-400 text-[10px] font-bold uppercase tracking-wider bg-sky-500/10 px-2 py-1 rounded w-fit">
+<span class="w-1.5 h-1.5 bg-sky-400 rounded-full animate-pulse"></span>
+                                        Pending
+                                    </div>
+</td>
+<td class="px-6 py-4">
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-white/10 rounded">
+<span class="material-symbols-outlined text-sm">info</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 border-t border-white/5 flex items-center justify-between text-xs text-slate-500">
+<div>Showing 1 - 4 of 1,248 entries</div>
+<div class="flex items-center gap-2">
+<button class="p-1 hover:text-white disabled:opacity-30" disabled=""><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="px-2 py-1 bg-primary text-on-primary rounded font-bold">1</button>
+<button class="px-2 py-1 hover:bg-white/5 rounded">2</button>
+<button class="px-2 py-1 hover:bg-white/5 rounded">3</button>
+<button class="p-1 hover:text-white"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Shared Footer Component -->
+<footer class="w-full py-8 bg-slate-950 flex flex-col items-center gap-4 w-full">
+<div class="flex flex-wrap justify-center gap-6 px-4">
+<a class="font-sans text-xs uppercase tracking-widest text-slate-500 hover:text-amber-200 transition-colors" href="#">Privacy Policy</a>
+<a class="font-sans text-xs uppercase tracking-widest text-slate-500 hover:text-amber-200 transition-colors" href="#">Terms of Service</a>
+<a class="font-sans text-xs uppercase tracking-widest text-slate-500 hover:text-amber-200 transition-colors" href="#">Security Protocol</a>
+</div>
+<p class="font-sans text-xs uppercase tracking-widest text-sky-900 text-center px-4">
+© 2026 mbtvkenya all rights Reserved
+</p>
+</footer>
+<script src="dashboard.js"></script>
+</body></html>

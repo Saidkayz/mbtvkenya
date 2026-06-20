@@ -98,7 +98,7 @@
 <aside class="bg-slate-950 h-screen w-64 fixed left-0 top-0 flex flex-col h-full py-6 z-50 font-manrope">
 <div class="px-6 mb-10">
 <div class="flex items-center gap-3">
-<img alt="MBTV Kenya Logo" class="h-24 w-auto object-contain" src="Design/mbtv-kenya.png"/>
+<img alt="MBTV Kenya Logo" class="h-24 w-auto object-contain" src="../Design/mbtv-kenya.png"/>
 <div>
 <h1 class="text-xl font-bold text-sky-200 tracking-wider">MBTV</h1>
 <p class="font-manrope tracking-tight font-medium text-xs text-slate-500 mt-1">Kenya Portal</p>
@@ -120,7 +120,7 @@
 <span class="material-symbols-outlined mr-3" data-icon="settings">settings</span>
                 Settings
             </a>
-<a class="flex items-center px-6 py-3 text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition-colors duration-200 font-manrope tracking-tight font-medium" href="index.html">
+<a class="flex items-center px-6 py-3 text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition-colors duration-200 font-manrope tracking-tight font-medium" href="../index.html">
 <span class="material-symbols-outlined mr-3" data-icon="logout">logout</span>
                 Logout
             </a>
@@ -183,18 +183,25 @@
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
 <!-- Video Code -->
 <div class="space-y-2">
-<label class="block text-xs font-headline font-bold uppercase tracking-widest text-slate-500">Video Code</label>
-<input class="w-full bg-surface-container-lowest border-none rounded-lg p-4 text-sm text-on-surface focus:ring-1 focus:ring-primary/40 placeholder:text-slate-700" placeholder="MBTV-2024-001" type="text"/>
+    <label class="block text-xs font-headline font-bold uppercase tracking-widest text-slate-500">Video Code</label>
+    <input name="code" required class="w-full bg-surface-container-lowest border-none rounded-lg p-4 text-sm text-on-surface focus:ring-1 focus:ring-primary/40 placeholder:text-slate-700" placeholder="MBTV-2024-001" type="text"/>
 </div>
 <!-- Name -->
 <div class="space-y-2">
-<label class="block text-xs font-headline font-bold uppercase tracking-widest text-slate-500">Video Name</label>
-<input class="w-full bg-surface-container-lowest border-none rounded-lg p-4 text-sm text-on-surface focus:ring-1 focus:ring-primary/40 placeholder:text-slate-700" placeholder="Enter production title" type="text"/>
+    <label class="block text-xs font-headline font-bold uppercase tracking-widest text-slate-500">Video Title</label>
+    <input name="title" required class="w-full bg-surface-container-lowest border-none rounded-lg p-4 text-sm text-on-surface focus:ring-1 focus:ring-primary/40 placeholder:text-slate-700" placeholder="Enter production title" type="text"/>
 </div>
 <!-- Date -->
 <div class="space-y-2">
-<label for="video-date" class="block text-xs font-headline font-bold uppercase tracking-widest text-slate-500">Date</label>
-<input id="video-date" class="w-full bg-surface-container-lowest border-none rounded-lg p-4 text-sm text-on-surface focus:ring-1 focus:ring-primary/40" type="date"/>
+    <label for="video-date" class="block text-xs font-headline font-bold uppercase tracking-widest text-slate-500">Date</label>
+    <input id="video-date" name="created_at" class="w-full bg-surface-container-lowest border-none rounded-lg p-4 text-sm text-on-surface focus:ring-1 focus:ring-primary/40" type="date"/>
+</div>
+<!-- Category -->
+<div class="space-y-2">
+    <label class="block text-xs font-headline font-bold uppercase tracking-widest text-slate-500">Category</label>
+    <select id="video-category-select" name="category_id" class="w-full bg-surface-container-lowest border-none rounded-lg p-4 text-sm text-on-surface focus:ring-1 focus:ring-primary/40 appearance-none">
+        <option value="">Select Category</option>
+    </select>
 </div>
 <!-- Place Shot -->
 <div class="space-y-2">
@@ -214,8 +221,8 @@
 </div>
 <!-- Description -->
 <div class="md:col-span-2 lg:col-span-3 space-y-2">
-<label class="block text-xs font-headline font-bold uppercase tracking-widest text-slate-500">Description</label>
-<textarea class="w-full bg-surface-container-lowest border-none rounded-lg p-4 text-sm text-on-surface focus:ring-1 focus:ring-primary/40 placeholder:text-slate-700 resize-none" placeholder="Summary of video content, key topics, and theological notes..." rows="3"></textarea>
+    <label class="block text-xs font-headline font-bold uppercase tracking-widest text-slate-500">Description</label>
+    <textarea name="description" class="w-full bg-surface-container-lowest border-none rounded-lg p-4 text-sm text-on-surface focus:ring-1 focus:ring-primary/40 placeholder:text-slate-700 resize-none" placeholder="Summary of video content, key topics, and theological notes..." rows="3"></textarea>
 </div>
 </div>
 <div class="pt-4 flex justify-end">
@@ -252,103 +259,8 @@
 <th class="px-8 py-5 text-[10px] font-headline font-bold uppercase tracking-[0.2em] text-slate-500 text-right">Actions</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-outline-variant/10">
-<!-- Row 1 -->
-<tr class="group hover:bg-surface-container transition-colors">
-<td class="px-8 py-5">
-<span class="font-manrope font-bold text-sky-200 text-sm">MB-VID-992</span>
-</td>
-<td class="px-8 py-5">
-<div>
-<p class="text-white font-semibold text-sm">The Path of Patience</p>
-<p class="text-[10px] text-slate-500 mt-0.5">MP4 • 4K UHD • 1.2 GB</p>
-</div>
-</td>
-<td class="px-8 py-5">
-<div class="flex items-center text-slate-400 text-sm">
-<span class="material-symbols-outlined text-[16px] mr-2" data-icon="pin_drop">pin_drop</span>
-                                            Mombasa Main Masjid
-                                        </div>
-</td>
-<td class="px-8 py-5 text-slate-400 text-sm">12 Oct, 2023</td>
-<td class="px-8 py-5">
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-green-500/10 text-green-400">
-                                            Published
-                                        </span>
-</td>
-<td class="px-8 py-5 text-right space-x-2">
-<button class="p-2 text-slate-500 hover:text-sky-300 transition-colors">
-<span class="material-symbols-outlined" data-icon="edit">edit</span>
-</button>
-<button class="p-2 text-slate-500 hover:text-error transition-colors">
-<span class="material-symbols-outlined" data-icon="delete">delete</span>
-</button>
-</td>
-</tr>
-<!-- Row 2 -->
-<tr class="group hover:bg-surface-container transition-colors">
-<td class="px-8 py-5">
-<span class="font-manrope font-bold text-sky-200 text-sm">MB-VID-104</span>
-</td>
-<td class="px-8 py-5">
-<div>
-<p class="text-white font-semibold text-sm">Understanding Zakat</p>
-<p class="text-[10px] text-slate-500 mt-0.5">MOV • HD • 850 MB</p>
-</div>
-</td>
-<td class="px-8 py-5">
-<div class="flex items-center text-slate-400 text-sm">
-<span class="material-symbols-outlined text-[16px] mr-2" data-icon="pin_drop">pin_drop</span>
-                                            Nairobi Studio B
-                                        </div>
-</td>
-<td class="px-8 py-5 text-slate-400 text-sm">05 Nov, 2023</td>
-<td class="px-8 py-5">
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-amber-400/10 text-amber-400">
-                                            Processing
-                                        </span>
-</td>
-<td class="px-8 py-5 text-right space-x-2">
-<button class="p-2 text-slate-500 hover:text-sky-300 transition-colors">
-<span class="material-symbols-outlined" data-icon="edit">edit</span>
-</button>
-<button class="p-2 text-slate-500 hover:text-error transition-colors">
-<span class="material-symbols-outlined" data-icon="delete">delete</span>
-</button>
-</td>
-</tr>
-<!-- Row 3 -->
-<tr class="group hover:bg-surface-container transition-colors">
-<td class="px-8 py-5">
-<span class="font-manrope font-bold text-sky-200 text-sm">MB-VID-088</span>
-</td>
-<td class="px-8 py-5">
-<div>
-<p class="text-white font-semibold text-sm">Ramadan Series Preview</p>
-<p class="text-[10px] text-slate-500 mt-0.5">MP4 • 4K UHD • 2.1 GB</p>
-</div>
-</td>
-<td class="px-8 py-5">
-<div class="flex items-center text-slate-400 text-sm">
-<span class="material-symbols-outlined text-[16px] mr-2" data-icon="pin_drop">pin_drop</span>
-                                            Nakuru Hub
-                                        </div>
-</td>
-<td class="px-8 py-5 text-slate-400 text-sm">28 Nov, 2023</td>
-<td class="px-8 py-5">
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-500/20 text-slate-400">
-                                            Archived
-                                        </span>
-</td>
-<td class="px-8 py-5 text-right space-x-2">
-<button class="p-2 text-slate-500 hover:text-sky-300 transition-colors">
-<span class="material-symbols-outlined" data-icon="edit">edit</span>
-</button>
-<button class="p-2 text-slate-500 hover:text-error transition-colors">
-<span class="material-symbols-outlined" data-icon="delete">delete</span>
-</button>
-</td>
-</tr>
+<tbody id="video-table-body" class="divide-y divide-outline-variant/10">
+    <!-- Loaded via JS -->
 </tbody>
 </table>
 <div class="bg-surface-container-low px-8 py-4 flex items-center justify-between border-t border-outline-variant/10">
@@ -413,5 +325,8 @@
 © 2026 mbtvkenya all rights Reserved
 </p>
 </footer>
-<script src="dashboard.js"></script>
+<script src="../assets/js/core.js"></script>
+<script src="../assets/js/videos.js"></script>
 </body></html>
+
+

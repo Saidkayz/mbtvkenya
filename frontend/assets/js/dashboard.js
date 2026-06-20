@@ -4,19 +4,63 @@
 */
 
 const MBTV = (() => {
+    const getApiUrl = (endpoint) => {
+        const isPage = window.location.pathname.includes('/pages/');
+        return isPage ? `../api/${endpoint}` : `api/${endpoint}`;
+    };
+
     const endpoints = {
-        login: 'api/users.php',
-        signup: 'api/users.php',
-        verifyOtp: 'api/users.php',
-        users: 'api/users.php',
-        equipment: 'api/equipment.php',
-        equipmentCheckout: 'api/equipment.php',
-        videos: 'api/videos.php',
-        categories: 'api/video-categories.php',
-        smsSettings: 'api/sms.php',
-        smsTest: 'api/sms.php',
-        smsNotifications: 'api/sms.php',
-        reports: 'api/reports.php',
+        login: getApiUrl('users.php'),
+        signup: getApiUrl('users.php'),
+        verifyOtp: getApiUrl('users.php'),
+        users: getApiUrl('users.php'),
+        equipment: getApiUrl('equipment.php'),
+        equipmentCheckout: getApiUrl('equipment.php'),
+        videos: getApiUrl('videos.php'),
+        categories: getApiUrl('video-categories.php'),
+        smsSettings: getApiUrl('sms.php'),
+        smsTest: getApiUrl('sms.php'),
+        smsNotifications: getApiUrl('sms.php'),
+        reports: getApiUrl('reports.php'),
+        logout: getApiUrl('logout.php')
+    };
+
+    const getCurrentUser = () => {
+        const userStr = localStorage.getItem('mbtv_user');
+        return userStr ? JSON.parse(userStr) : null;
+    };
+
+    const checkAuth = () => {
+        const user = getCurrentUser();
+        const path = window.location.pathname;
+        const publicPages = ['/index.html', '/login.html', '/about.html', '/contact.html', '/program.html', '/'];
+        
+        // If unauthenticated and on a private page, redirect to index
+        if (!user && !publicPages.some(p => path.endsWith(p))) {
+            const isPage = window.location.pathname.includes('/pages/');
+            window.location.href = isPage ? '../index.html' : 'index.html';
+        }
+
+        // If authenticated as a normal user trying to CRUD on admin.html
+        if (user && path.endsWith('admin.html') && user.role_name !== 'Chief IT') {
+             // We allow view, but hide CRUD elements in init
+        }
+    };
+
+    const setAdminUI = () => {
+        const user = getCurrentUser();
+        if (!user) return;
+
+        const isChief = user.role_name === 'Chief IT';
+        
+        // Hide/Show elements based on role
+        document.querySelectorAll('.chief-only').forEach(el => {
+            el.classList.toggle('hidden', !isChief);
+        });
+
+        if (isChief && document.getElementById('user-management-table')) {
+            loadUserManagement();
+        }
     };
 
     const fetchJson = async (url, options = {}) => {
@@ -77,12 +121,18 @@ const MBTV = (() => {
             const payload = serializeForm(loginForm);
             payload.action = 'login';
             try {
-                await fetchJson(endpoints.login, {
+                const result = await fetchJson(endpoints.login, {
                     method: 'POST',
                     body: JSON.stringify(payload),
                 });
+                localStorage.setItem('mbtv_user', JSON.stringify(result.user));
                 showToast('Login successful', 'success');
-                window.location.href = 'admin.html';
+                
+                if (result.user.role_name === 'Chief IT') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'program.html';
+                }
             } catch (error) {
                 document.getElementById('login-error')?.classList.remove('hidden');
                 showToast(error.message || 'Login failed', 'error');
@@ -306,8 +356,24 @@ const MBTV = (() => {
                     break;
                 case 'logout':
                     event.preventDefault();
-                    await fetchJson('/api/logout', { method: 'POST' });
-                    window.location.href = 'login.html';
+                    localStorage.removeItem('mbtv_user');
+                    const isPageLogout = window.location.pathname.includes('/pages/');
+                    window.location.href = isPageLogout ? '../index.html' : 'index.html';
+                    break;
+                case 'delete-user-action':
+                    const userId = button.dataset.id;
+                    if (confirm('Are you sure you want to delete this user?')) {
+                        try {
+                            await fetchJson(endpoints.users, {
+                                method: 'POST',
+                                body: JSON.stringify({ action: 'delete-user', user_id: userId })
+                            });
+                            showToast('User deleted', 'success');
+                            loadUserManagement();
+                        } catch (e) {
+                            showToast(e.message, 'error');
+                        }
+                    }
                     break;
                 case 'toggle-template':
                     event.preventDefault();
@@ -323,7 +389,31 @@ const MBTV = (() => {
         });
     };
 
+    const loadUserManagement = async () => {
+        const tableBody = document.getElementById('user-management-body');
+        if (!tableBody) return;
+
+        try {
+            const result = await fetchJson(endpoints.users + '?action=list-users', { method: 'POST' });
+            tableBody.innerHTML = result.users.map(u => `
+                <tr class="hover:bg-white/5 transition-colors border-b border-white/5">
+                    <td class="px-6 py-4 text-sm font-medium">${u.full_name}</td>
+                    <td class="px-6 py-4 text-sm text-on-surface-variant">${u.username}</td>
+                    <td class="px-6 py-4 text-sm text-on-surface-variant">${u.role_name}</td>
+                    <td class="px-6 py-4 text-sm">
+                        <button data-action="delete-user-action" data-id="${u.id}" class="text-error hover:text-red-400">
+                             <span class="material-symbols-outlined text-lg">delete</span>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (e) {
+            console.error('Failed to load users', e);
+        }
+    };
+
     const init = () => {
+        checkAuth();
         bindLoginForm();
         bindSignupForm();
         bindOtpForm();
@@ -333,6 +423,7 @@ const MBTV = (() => {
         bindSmsSettings();
         bindReportButton();
         bindActionButtons();
+        setAdminUI();
     };
 
     return { init };

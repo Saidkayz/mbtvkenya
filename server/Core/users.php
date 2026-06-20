@@ -18,10 +18,8 @@ register_shutdown_function(function() {
     }
 });
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once(__DIR__ . '/Config.php');
+setCorsHeaders();
 
 // Handle preflight request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -29,8 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once('config.php');
+require_once(__DIR__ . '/../Models/Auth.php');
 $conn = getDbConnection();
+$auth = new AuthModel($conn);
 
 // Read input data once
 $rawInput = file_get_contents('php://input');
@@ -47,33 +46,39 @@ $action = isset($_GET['action']) ? $_GET['action'] : (isset($input['action']) ? 
 if ($method !== 'POST') {
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed. Use POST. Method received: ' . $method . '. Look at browser Network tab ']);
-    $conn->close();
     exit;
 }
 
 // Route requests based on action
 switch ($action) {
     case 'register':
-        handleRegister($conn, $input);
+        handleRegister($conn, $input, $auth);
         break;
     case 'verify-otp':
         handleVerifyOtp($conn, $input);
         break;
     case 'login':
-        handleLogin($conn, $input);
+        handleLogin($conn, $input, $auth);
+        break;
+    case 'list-users':
+        handleListUsers($conn, $auth);
+        break;
+    case 'list-roles':
+        handleListRoles($conn, $auth);
+        break;
+    case 'delete-user':
+        handleDeleteUser($conn, $input, $auth);
         break;
     default:
         http_response_code(400);
-        echo json_encode(['error' => 'Invalid action: ' . $action . '. Expected: register, verify-otp, or login']);
+        echo json_encode(['error' => 'Invalid action: ' . $action . '. Expected: register, verify-otp, login, list-users, or delete-user']);
         break;
 }
-
-$conn->close();
 
 /**
  * Handle user registration
  */
-function handleRegister($conn, $data) {
+function handleRegister($conn, $data, $auth) {
     // Validate required fields
     $required = ['full_name', 'username', 'email', 'phone', 'password', 'role_id'];
     foreach ($required as $field) {
@@ -165,6 +170,30 @@ function handleRegister($conn, $data) {
     // Generate OTP
     $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+    
+    // Check if requester is Chief IT (Direct registration)
+    if ($auth->isLoggedIn() && $auth->isChiefIT()) {
+        $stmt = $conn->prepare(
+            'INSERT INTO users (username, full_name, email, phone, password_hash, role_id, created_at) 
+             VALUES (?, ?, ?, ?, ?, ?, NOW())'
+        );
+        $stmt->bind_param('sssssi', $username, $fullName, $email, $phone, $hashedPassword, $roleId);
+        
+        if ($stmt->execute()) {
+            http_response_code(201);
+            echo json_encode([
+                'success' => true,
+                'message' => 'User created successfully by administrator',
+                'user_id' => $conn->insert_id
+            ]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to create user: ' . $stmt->error]);
+        }
+        $stmt->close();
+        return;
+    }
+
     $verificationId = bin2hex(random_bytes(16));
     $expiresAt = date('Y-m-d H:i:s', strtotime('+10 minutes'));
 
@@ -278,7 +307,7 @@ function handleVerifyOtp($conn, $data) {
 /**
  * Handle user login
  */
-function handleLogin($conn, $data) {
+function handleLogin($conn, $data, $auth) {
     if (empty($data['username']) || empty($data['password'])) {
         http_response_code(400);
         echo json_encode(['error' => 'Missing username or password']);
@@ -314,10 +343,13 @@ function handleLogin($conn, $data) {
     }
 
     // Start session
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['username'] = $user['username'];
     $_SESSION['role_id'] = $user['role_id'];
+    $_SESSION['role_name'] = $auth->fetchRoleName($user['role_id']);
 
     http_response_code(200);
     echo json_encode([
@@ -327,9 +359,74 @@ function handleLogin($conn, $data) {
             'id' => $user['id'],
             'username' => $user['username'],
             'email' => $user['email'],
-            'role_id' => $user['role_id']
+            'role_id' => $user['role_id'],
+            'role_name' => $_SESSION['role_name']
         ]
     ]);
+}
+
+/**
+ * List all users (Chief IT only)
+ */
+function handleListUsers($conn, $auth) {
+    $auth->requireChiefIT();
+    
+    $result = $conn->query('SELECT u.id, u.username, u.email, u.full_name, u.phone, u.status, r.name as role_name 
+                            FROM users u JOIN roles r ON u.role_id = r.id');
+    $users = [];
+    while ($row = $result->fetch_assoc()) {
+        $users[] = $row;
+    }
+    
+    echo json_encode(['success' => true, 'users' => $users]);
+}
+
+/**
+ * List all roles
+ */
+function handleListRoles($conn, $auth) {
+    $auth->requireLogin();
+    
+    $result = $conn->query('SELECT id, name, description FROM roles ORDER BY id ASC');
+    $roles = [];
+    while ($row = $result->fetch_assoc()) {
+        $roles[] = $row;
+    }
+    
+    echo json_encode(['success' => true, 'roles' => $roles]);
+}
+
+/**
+ * Delete a user (Chief IT only)
+ */
+function handleDeleteUser($conn, $data, $auth) {
+    $auth->requireChiefIT();
+    
+    if (empty($data['user_id'])) {
+        http_response_code(400);
+        echo json_encode(['error' => 'User ID is required']);
+        return;
+    }
+
+    $userId = (int)$data['user_id'];
+    
+    // Cannot delete yourself
+    if ($userId === (int)$_SESSION['user_id']) {
+        http_response_code(400);
+        echo json_encode(['error' => 'You cannot delete your own account']);
+        return;
+    }
+
+    $stmt = $conn->prepare('DELETE FROM users WHERE id = ?');
+    $stmt->bind_param('i', $userId);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'User deleted successfully']);
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to delete user: ' . $stmt->error]);
+    }
+    $stmt->close();
 }
 
 $conn->close();

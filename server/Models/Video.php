@@ -11,6 +11,7 @@ class Video {
                                     FROM video_assets v 
                                     LEFT JOIN video_categories c ON v.category_id = c.id 
                                     LEFT JOIN users u ON v.created_by = u.id 
+                                    WHERE v.status != "deleted"
                                     ORDER BY v.created_at DESC');
         $videos = [];
         while ($row = $result->fetch_assoc()) {
@@ -20,8 +21,20 @@ class Video {
     }
 
     public function create($data) {
-        $stmt = $this->conn->prepare('INSERT INTO video_assets (code, title, description, category_id, status, created_by) VALUES (?, ?, ?, ?, ?, ?)');
-        $stmt->bind_param('sssis i', $data['code'], $data['title'], $data['description'], $data['category_id'], $data['status'], $data['created_by']);
+        $sql = "INSERT INTO video_assets (
+            code, title, category_id, video_date, location, 
+            camera_number, camera_operator, speaker, memory_card, 
+            num_clips, total_duration, resolution, backup_status, 
+            editor_assigned, status, notes, created_by
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('ssissssssissssssi', 
+            $data['code'], $data['title'], $data['category_id'], $data['video_date'], $data['location'],
+            $data['camera_number'], $data['camera_operator'], $data['speaker'], $data['memory_card'],
+            $data['num_clips'], $data['total_duration'], $data['resolution'], $data['backup_status'],
+            $data['editor_assigned'], $data['status'], $data['notes'], $data['created_by']
+        );
         return $stmt->execute();
     }
 

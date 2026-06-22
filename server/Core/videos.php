@@ -41,8 +41,14 @@ switch ($action) {
     case 'delete':
         handleDelete($conn, $input, $auth);
         break;
+    case 'update':
+        handleUpdate($conn, $input, $auth);
+        break;
     case 'categories':
-        handleListCategories($conn, $auth);
+        handleListCategories($conn);
+        break;
+    case 'helpers':
+        handleHelpers($conn, $auth);
         break;
     default:
         http_response_code(400);
@@ -53,14 +59,9 @@ switch ($action) {
 function handleList($conn, $auth) {
     $auth->requireLogin();
     
-    $result = $conn->query("SELECT v.*, c.name as category_name, u.username as creator_name 
-                            FROM video_assets v 
-                            LEFT JOIN video_categories c ON v.category_id = c.id 
-                            LEFT JOIN users u ON v.created_by = u.id 
-                            WHERE v.status != 'deleted'
-                            ORDER BY v.created_at DESC");
+    $result = $conn->query("SELECT * FROM video_assets ORDER BY created_at DESC");
     $videos = [];
-    while ($row = $result->fetch_assoc()) {
+    while($row = $result->fetch_assoc()) {
         $videos[] = $row;
     }
     echo json_encode(['success' => true, 'videos' => $videos]);
@@ -69,23 +70,115 @@ function handleList($conn, $auth) {
 function handleCreate($conn, $data, $auth) {
     $auth->requireLogin();
     
-    $required = ['title', 'code'];
-    foreach ($required as $f) {
-        if (empty($data[$f])) {
-            http_response_code(400);
-            echo json_encode(['error' => "Missing $f"]);
-            return;
-        }
+    if (empty($data['title'])) {
+        http_response_code(400);
+        echo json_encode(['error' => "Title is required"]);
+        return;
     }
     
-    $stmt = $conn->prepare("INSERT INTO video_assets (code, title, description, category_id, status, created_by) VALUES (?, ?, ?, ?, ?, ?)");
-    $status = $data['status'] ?? 'draft';
-    $createdBy = $_SESSION['user_id'];
-    $catId = !empty($data['category_id']) ? (int)$data['category_id'] : null;
-    $stmt->bind_param('sssiis', $data['code'], $data['title'], $data['description'], $catId, $status, $createdBy);
+    // Generate a unique reference code if not provided
+    $code = !empty($data['code']) ? $data['code'] : 'VID-' . strtoupper(substr(uniqid(), -6));
+    
+    $title = trim($data['title']);
+    $category = trim($data['category'] ?? 'General');
+    $video_date = $data['video_date'] ?? date('Y-m-d');
+    $location = $data['location'] ?? null;
+    $cameraNumber = $data['camera_number'] ?? null;
+    $cameraOperator = $data['camera_operator'] ?? null;
+    $memoryCard = $data['memory_card'] ?? null;
+    $resolution = $data['resolution'] ?? '4K 25fps';
+    $speaker = $data['speaker'] ?? null;
+    $numClips = !empty($data['num_clips']) ? (int)$data['num_clips'] : 0;
+    $totalDuration = $data['total_duration'] ?? null;
+    $backupStatus = $data['backup_status'] ?? null;
+    $notes = $data['notes'] ?? null;
+    $editorAssigned = $data['editor_assigned'] ?? null;
+    $status = $data['status'] ?? 'Pending';
+    
+    $stmt = $conn->prepare(
+        "INSERT INTO video_assets (title, category, video_date, location, camera_number, camera_operator, memory_card, resolution, speaker, num_clips, total_duration, backup_status, notes, editor_assigned, status, code, created_at) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())"
+    );
+    
+    if (!$stmt) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Database error: ' . $conn->error]);
+        return;
+    }
+    
+    $stmt->bind_param("sssssssssissssss", $title, $category, $video_date, $location, $cameraNumber, $cameraOperator, $memoryCard, $resolution, $speaker, $numClips, $totalDuration, $backupStatus, $notes, $editorAssigned, $status, $code);
     
     if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'id' => $conn->insert_id]);
+        echo json_encode(['success' => true, 'id' => $conn->insert_id, 'code' => $code]);
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => $stmt->error]);
+    }
+    $stmt->close();
+}
+
+function handleUpdate($conn, $data, $auth) {
+    $auth->requireLogin();
+    
+    if (empty($data['id']) || empty($data['title'])) {
+        http_response_code(400);
+        echo json_encode(['error' => 'ID and Title are required']);
+        return;
+    }
+    
+    $sql = "UPDATE video_assets SET 
+                title = ?, category = ?, video_date = ?, location = ?, 
+                camera_number = ?, camera_operator = ?, memory_card = ?, resolution = ?, 
+                speaker = ?, num_clips = ?, total_duration = ?, backup_status = ?, 
+                editor_assigned = ?, notes = ?, status = ?
+            WHERE id = ?";
+            
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Database error: ' . $conn->error]);
+        return;
+    }
+    
+    $id = (int)$data['id'];
+    $title = trim($data['title']);
+    $category = trim($data['category'] ?? 'General');
+    $numClips = !empty($data['num_clips']) ? (int)$data['num_clips'] : 0;
+    
+    $videoDate = $data['video_date'] ?? null;
+    $location = $data['location'] ?? null;
+    $camNum = $data['camera_number'] ?? null;
+    $camOp = $data['camera_operator'] ?? null;
+    $memCard = $data['memory_card'] ?? null;
+    $res = $data['resolution'] ?? '4K 25fps';
+    $speaker = $data['speaker'] ?? null;
+    $duration = $data['total_duration'] ?? null;
+    $backup = $data['backup_status'] ?? null;
+    $editor = $data['editor_assigned'] ?? null;
+    $notes = $data['notes'] ?? null;
+    $status = $data['status'] ?? 'Pending';
+
+    $stmt->bind_param('sssssssssisssssi', 
+        $title, 
+        $category, 
+        $videoDate, 
+        $location,
+        $camNum, 
+        $camOp, 
+        $memCard, 
+        $res,
+        $speaker, 
+        $numClips, 
+        $duration, 
+        $backup,
+        $editor, 
+        $notes, 
+        $status, 
+        $id
+    );
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
     } else {
         http_response_code(500);
         echo json_encode(['error' => $stmt->error]);
@@ -100,7 +193,7 @@ function handleDelete($conn, $data, $auth) {
         echo json_encode(['error' => 'ID required']);
         return;
     }
-    $stmt = $conn->prepare("UPDATE video_assets SET status = 'deleted' WHERE id = ?");
+    $stmt = $conn->prepare("DELETE FROM video_assets WHERE id = ?");
     $stmt->bind_param('i', $data['id']);
     if ($stmt->execute()) {
         echo json_encode(['success' => true]);
@@ -111,14 +204,46 @@ function handleDelete($conn, $data, $auth) {
     $stmt->close();
 }
 
-function handleListCategories($conn, $auth) {
-    $auth->requireLogin();
-    $result = $conn->query("SELECT id, name FROM video_categories ORDER BY name ASC");
-    $categories = [];
-    while ($row = $result->fetch_assoc()) {
-        $categories[] = $row;
-    }
+function handleListCategories($conn) {
+    $categories = [
+        ['id' => 'News', 'name' => 'News'],
+        ['id' => 'Sports', 'name' => 'Sports'],
+        ['id' => 'Religious', 'name' => 'Religious'],
+        ['id' => 'Educational', 'name' => 'Educational'],
+        ['id' => 'Entertainment', 'name' => 'Entertainment'],
+        ['id' => 'Documentary', 'name' => 'Documentary'],
+        ['id' => 'Sermon', 'name' => 'Sermon']
+    ];
     echo json_encode(['success' => true, 'categories' => $categories]);
+}
+
+
+function handleHelpers($conn, $auth) {
+    if (!$auth->isLoggedIn()) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+
+    // 1. Fetch Cameras from equipment
+    $cameras = [];
+    $res = $conn->query("SELECT item_code, name FROM equipment WHERE category = 'Camera' AND status = 'available'");
+    while ($row = $res->fetch_assoc()) {
+        $cameras[] = $row;
+    }
+
+    // 2. Fetch Active Users
+    $operators = [];
+    $res = $conn->query("SELECT id, full_name FROM users WHERE status = 'active' ORDER BY full_name ASC");
+    while ($row = $res->fetch_assoc()) {
+        $operators[] = $row;
+    }
+
+    echo json_encode([
+        'success' => true,
+        'cameras' => $cameras,
+        'operators' => $operators
+    ]);
 }
 
 $conn->close();

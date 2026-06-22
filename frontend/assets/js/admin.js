@@ -40,9 +40,10 @@ window.addEventListener('DOMContentLoaded', () => {
             };
 
             set('stat-total-videos',    data.total_videos);
+            set('stat-video-pending',   data.video_pending);
             set('stat-total-equipment', data.total_equipment);
-            set('stat-available-units', data.available_equipment);
-            set('stat-active-users',    data.total_users);
+            set('stat-total-users',     data.total_users);
+            set('stat-pending-returns', data.pending_returns);
             set('storage-util-text',    `${data.storage_pct}% Full`);
 
             const storageBar = document.getElementById('storage-util-bar');
@@ -159,7 +160,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     <tr class="hover:bg-white/5 transition-colors">
                         <td class="px-8 py-5 text-xs text-slate-500 font-black uppercase tracking-tighter">${dateStr}</td>
                         <td class="px-8 py-5 text-sm font-bold text-white italic uppercase tracking-tight">${c.equipment_name || 'Item'}</td>
-                        <td class="px-8 py-5 text-sm text-slate-300 font-bold uppercase italic">${c.recipient_name || 'Staff Member'}</td>
+                        <td class="px-8 py-5 text-sm underline decoration-white/10 underline-offset-4 text-slate-300 font-bold uppercase italic">${c.recipient_name || c.recipient_username || 'Staff Member'}</td>
                         <td class="px-8 py-5 text-right">
                             <span class="px-2 py-0.5 rounded border text-[10px] font-black uppercase tracking-widest ${isOut ? 'text-primary bg-primary/10 border-primary/20' : 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20'}">
                                 ${isOut ? 'OUT' : 'RETURNED'}

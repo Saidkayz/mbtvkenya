@@ -56,10 +56,48 @@ switch ($action) {
     case 'logistics_stats':
         handleLogisticsStats($conn, $auth);
         break;
+    case 'trend_data':
+        handleTrendData($conn, $auth);
+        break;
     default:
         http_response_code(400);
         echo json_encode(['error' => 'Invalid action']);
         break;
+}
+
+function handleTrendData($conn, $auth) {
+    $auth->requireLogin();
+    
+    // Get last 7 days of transactions (checkouts vs returns)
+    $trends = [];
+    for ($i = 6; $i >= 0; $i--) {
+        $date = date('Y-m-d', strtotime("-$i days"));
+        
+        $res = $conn->query("SELECT SUM(quantity) as checkouts FROM equipment_checkouts WHERE DATE(checkout_date) = '$date'");
+        $checkouts = (int)($res->fetch_assoc()['checkouts'] ?? 0);
+        
+        $res = $conn->query("SELECT SUM(quantity) as returns FROM equipment_checkouts WHERE DATE(return_date) = '$date'");
+        $returns = (int)($res->fetch_assoc()['returns'] ?? 0);
+        
+        $trends[] = [
+            'date' => date('D', strtotime($date)),
+            'checkouts' => $checkouts,
+            'returns' => $returns
+        ];
+    }
+    
+    // Get Category Distribution
+    $categories = [];
+    $res = $conn->query("SELECT category, COUNT(*) as count FROM equipment WHERE status != 'retired' GROUP BY category");
+    while ($row = $res->fetch_assoc()) {
+        $categories[] = $row;
+    }
+    
+    echo json_encode([
+        'success' => true, 
+        'trends' => $trends,
+        'categories' => $categories
+    ]);
 }
 
 function handleLogisticsStats($conn, $auth) {
@@ -139,6 +177,7 @@ function handleCheckout($conn, $data, $auth) {
     $qty = isset($data['quantity']) ? (int)$data['quantity'] : 1;
     $adminId = (int)$_SESSION['user_id']; // The admin performing the action
     $notes = isset($data['notes']) ? trim($data['notes']) : '';
+    $dueDate = !empty($data['due_date']) ? $data['due_date'] : null;
 
     // 1. Check Availability
     $stmt = $conn->prepare("
@@ -165,10 +204,10 @@ function handleCheckout($conn, $data, $auth) {
 
     // 2. Insert Record
     $stmt = $conn->prepare(
-        "INSERT INTO equipment_checkouts (equipment_id, user_id, admin_id, quantity, status, checkout_date, notes)
-         VALUES (?, ?, ?, ?, 'checked_out', NOW(), ?)"
+        "INSERT INTO equipment_checkouts (equipment_id, user_id, admin_id, quantity, status, checkout_date, due_date, notes)
+         VALUES (?, ?, ?, ?, 'checked_out', NOW(), ?, ?)"
     );
-    $stmt->bind_param('iiiis', $equipmentId, $targetUserId, $adminId, $qty, $notes);
+    $stmt->bind_param('iiiiss', $equipmentId, $targetUserId, $adminId, $qty, $dueDate, $notes);
     
     if ($stmt->execute()) {
         // Update equipment status if it was 'available' and now fully booked? 
@@ -211,7 +250,7 @@ function handleReturn($conn, $data, $auth) {
 function handleListCheckouts($conn, $auth) {
     $auth->requireLogin();
     $result = $conn->query(
-        "SELECT ec.*, e.name AS equipment_name, e.item_code, u.full_name AS recipient_name, a.full_name AS admin_name
+        "SELECT ec.*, e.name AS equipment_name, e.item_code, u.full_name AS recipient_name, u.username AS recipient_username, a.full_name AS admin_name
          FROM equipment_checkouts ec
          JOIN equipment e ON ec.equipment_id = e.id
          LEFT JOIN users u ON ec.user_id = u.id

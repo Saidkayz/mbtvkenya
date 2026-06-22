@@ -18,14 +18,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
             if (result.success && result.checkouts.length > 0) {
                 tableBody.innerHTML = result.checkouts.map(c => {
-                    const directionClass = c.status === 'checked_out'
-                        ? 'bg-sky-950 text-sky-400 border-sky-400/20'
-                        : 'bg-emerald-950 text-emerald-400 border-emerald-400/20';
-                    const directionLabel = c.status === 'checked_out' ? 'OUT' : 'RETURNED';
+                    const statusClass = c.status === 'checked_out'
+                        ? 'bg-primary/10 text-primary border-primary/20'
+                        : 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20';
+                    const statusLabel = c.status === 'checked_out' ? 'ACTIVE_DISPATCH' : 'UNIT_RETURNED';
                     
                     const returnButton = (c.status === 'checked_out') 
-                        ? `<button class="px-3 py-1 bg-slate-800 hover:bg-emerald-600 text-white rounded text-[8px] font-black uppercase tracking-widest transition-colors shadow-lg shadow-black/20" onclick="window.confirmReturn(${c.id})">Return Gear</button>`
-                        : `<span class="text-[8px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full uppercase tracking-tighter">Verified</span>`;
+                        ? `<button class="px-4 py-1.5 bg-slate-800 hover:bg-emerald-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all shadow-lg active:scale-95" onclick="window.confirmReturn(${c.id})">Verify Return</button>`
+                        : `<div class="flex items-center justify-end gap-2 text-emerald-400 font-bold text-[9px] uppercase"><span class="material-symbols-outlined text-xs">verified</span> LOGGED</div>`;
 
                     const date = c.checkout_date
                         ? new Date(c.checkout_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
@@ -35,29 +35,33 @@ window.addEventListener('DOMContentLoaded', () => {
                         : '—';
 
                     return `
-                        <tr class="hover:bg-slate-900/40 transition-colors border-b border-slate-800/50">
-                            <td class="px-6 py-4">
+                        <tr class="hover:bg-primary/5 transition-colors group">
+                            <td class="px-8 py-5">
                                 <div class="flex flex-col">
-                                    <span class="text-[10px] font-black text-white">${date}</span>
+                                    <span class="text-[11px] font-black text-white italic">${date}</span>
                                     <span class="text-[8px] text-slate-500 uppercase tracking-widest font-bold">${time}</span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-xs font-bold text-white">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-2 h-2 bg-primary rounded-full"></div>
+                            <td class="px-8 py-5">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-background rounded-xl border border-white/5 flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
+                                        <span class="material-symbols-outlined text-xl">hardware</span>
+                                    </div>
                                     <div class="flex flex-col">
-                                        <span class="text-xs font-black uppercase italic">${c.equipment_name}</span>
-                                        <span class="text-[8px] text-slate-500 font-bold uppercase tracking-widest">${c.item_code}</span>
+                                        <span class="text-[11px] font-black text-white uppercase italic">${c.equipment_name}</span>
+                                        <span class="text-[8px] text-primary/60 font-bold uppercase tracking-widest">${c.item_code}</span>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest italic">${c.recipient_name || 'Staff Member'}</td>
-                            <td class="px-6 py-4">
-                                <div class="flex justify-center">
-                                    <span class="px-2 py-0.5 ${directionClass} text-[8px] font-black rounded border italic uppercase tracking-tighter">${directionLabel} x${c.quantity}</span>
+                            <td class="px-8 py-5">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">@${c.recipient_username || 'SYSTEM'}</span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-right">${returnButton}</td>
+                            <td class="px-8 py-5 text-center">
+                                <span class="px-3 py-1 ${statusClass} text-[8px] font-black rounded-lg border italic uppercase tracking-widest">${statusLabel} x${c.quantity}</span>
+                            </td>
+                            <td class="px-8 py-5 text-right">${returnButton}</td>
                         </tr>`;
                 }).join('');
             } else {
@@ -185,6 +189,131 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // ----- Usage Analytics Charts -----
+    let trendChart, categoryChart;
+    
+    const initTrendChart = (data) => {
+        const ctx = document.getElementById('equipmentTrendChart');
+        if (!ctx) return;
+        if (trendChart) trendChart.destroy();
+
+        trendChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map(d => d.date),
+                datasets: [
+                    {
+                        label: 'Check Outs',
+                        data: data.map(d => d.checkouts),
+                        borderColor: '#9fccef',
+                        backgroundColor: 'rgba(159, 204, 239, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#9fccef',
+                        pointBorderColor: '#111316',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'Returns',
+                        data: data.map(d => d.returns),
+                        borderColor: '#34d399',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        borderDash: [5, 5],
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        align: 'end',
+                        labels: {
+                            color: '#64748b',
+                            font: { size: 10, weight: 'bold', family: 'Work Sans' },
+                            usePointStyle: true,
+                            boxWidth: 6
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#64748b', font: { size: 9, weight: 'bold' } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.03)' },
+                        ticks: { color: '#64748b', font: { size: 9 }, stepSize: 1 },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    };
+
+    const initCategoryChart = (categories) => {
+        const ctx = document.getElementById('categoryDistributionChart');
+        if (!ctx) return;
+        if (categoryChart) categoryChart.destroy();
+
+        categoryChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: categories.map(c => c.category),
+                datasets: [{
+                    data: categories.map(c => c.count),
+                    backgroundColor: [
+                        '#9fccef',
+                        '#e3c286',
+                        '#34d399',
+                        '#818cf8',
+                        '#f472b6'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#64748b',
+                            font: { size: 8, weight: 'bold' },
+                            padding: 10,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    };
+
+    const loadTrendData = async () => {
+        try {
+            const result = await fetchJson(endpoints.equipment, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'trend_data' })
+            });
+            if (result.success) {
+                initTrendChart(result.trends);
+                initCategoryChart(result.categories);
+            }
+        } catch (e) {
+            console.error('Failed to load chart data', e);
+        }
+    };
+
     // ----- Checkout form submission -----
     const bindCheckoutForm = () => {
         const form = document.getElementById('equipment-form');
@@ -195,6 +324,8 @@ window.addEventListener('DOMContentLoaded', () => {
             const equipmentId = tsEquipment.getValue();
             const userId = tsStaff.getValue();
             const quantity = document.getElementById('quantity-input')?.value;
+            const dueDate = form.elements['due_date']?.value;
+            const notes = form.elements['notes']?.value;
 
             if (!equipmentId) { showToast('Select hardware unit', 'error'); return; }
             if (!userId) { showToast('Identify personnel recipient', 'error'); return; }
@@ -206,19 +337,22 @@ window.addEventListener('DOMContentLoaded', () => {
                         action: 'checkout', 
                         equipment_id: equipmentId, 
                         user_id: userId,
-                        quantity: quantity
+                        quantity: parseInt(quantity) || 1,
+                        due_date: dueDate
                     })
                 });
                 showToast('Deployment registered successfully', 'success');
                 
                 // Reset form visibility and state
+                document.getElementById('deployment-modal').classList.add('hidden');
                 tsEquipment.clear();
                 tsStaff.clear();
-                document.getElementById('quantity-input').value = 1;
+                form.reset();
                 
                 loadActivityLog();
                 populateEquipmentDropdown();
                 loadLogisticsStats();
+                loadTrendData();
             } catch (err) {
                 showToast(err.message || 'Deployment rejected', 'error');
             }
@@ -229,5 +363,6 @@ window.addEventListener('DOMContentLoaded', () => {
     populateStaffDropdown();
     loadActivityLog();
     loadLogisticsStats();
+    loadTrendData();
     bindCheckoutForm();
 });

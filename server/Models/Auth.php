@@ -37,16 +37,5 @@ class AuthModel {
             exit;
         }
     }
-
-    public function fetchRoleName($roleId) {
-        $stmt = $this->conn->prepare('SELECT name FROM roles WHERE id = ?');
-        $stmt->bind_param('i', $roleId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($row = $result->fetch_assoc()) {
-            return $row['name'];
-        }
-        return '';
-    }
 }
 ?>

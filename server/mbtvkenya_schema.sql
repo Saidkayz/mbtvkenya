@@ -9,20 +9,10 @@ DROP TABLE IF EXISTS sms_notifications;
 DROP TABLE IF EXISTS video_assets;
 DROP TABLE IF EXISTS user_verifications;
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS equipment;
 DROP TABLE IF EXISTS sms_settings;
-DROP TABLE IF EXISTS video_categories;
 
 SET FOREIGN_KEY_CHECKS = 1;
-
-CREATE TABLE roles (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE,
-    description VARCHAR(255) DEFAULT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE user_verifications (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -32,7 +22,7 @@ CREATE TABLE user_verifications (
     email VARCHAR(180) NOT NULL,
     phone VARCHAR(30) DEFAULT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    role_id INT UNSIGNED NOT NULL,
+    role VARCHAR(50) NOT NULL DEFAULT 'Staff',
     otp VARCHAR(6) NOT NULL,
     otp_expires_at DATETIME NOT NULL,
     verified_at DATETIME DEFAULT NULL,
@@ -43,24 +33,14 @@ CREATE TABLE user_verifications (
 
 CREATE TABLE users (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    role_id INT UNSIGNED NOT NULL,
     username VARCHAR(80) NOT NULL UNIQUE,
     email VARCHAR(180) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(150) NOT NULL,
     phone VARCHAR(30) DEFAULT NULL,
+    role VARCHAR(50) NOT NULL DEFAULT 'Staff',
     status ENUM('active','inactive','suspended','deleted') NOT NULL DEFAULT 'active',
     last_login DATETIME DEFAULT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_users_roles FOREIGN KEY (role_id) REFERENCES roles(id)
-        ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE video_categories (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    description VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -69,22 +49,23 @@ CREATE TABLE video_assets (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(80) NOT NULL UNIQUE,
     title VARCHAR(255) NOT NULL,
-    description TEXT DEFAULT NULL,
-    category_id INT UNSIGNED DEFAULT NULL,
-    duration_seconds INT UNSIGNED DEFAULT NULL,
-    format VARCHAR(50) DEFAULT NULL,
-    file_path VARCHAR(500) DEFAULT NULL,
-    storage_location VARCHAR(255) DEFAULT NULL,
-    folder_path VARCHAR(500) DEFAULT NULL,
-    shot_date DATE DEFAULT NULL,
+    category VARCHAR(100) DEFAULT 'General',
+    video_date DATE DEFAULT NULL,
     location VARCHAR(255) DEFAULT NULL,
-    status ENUM('draft','review','published','archived','deleted') NOT NULL DEFAULT 'draft',
+    camera_number VARCHAR(100) DEFAULT NULL,
+    camera_operator VARCHAR(150) DEFAULT NULL,
+    speaker VARCHAR(255) DEFAULT NULL,
+    memory_card VARCHAR(100) DEFAULT NULL,
+    num_clips INT UNSIGNED DEFAULT 0,
+    total_duration VARCHAR(100) DEFAULT NULL,
+    resolution VARCHAR(50) DEFAULT '4K 25fps',
+    backup_status VARCHAR(255) DEFAULT NULL,
+    editor_assigned VARCHAR(150) DEFAULT NULL,
+    status ENUM('Pending', 'Edit In Progress', 'Review', 'Completed', 'Archived', 'deleted') NOT NULL DEFAULT 'Pending',
+    notes TEXT DEFAULT NULL,
     created_by INT UNSIGNED DEFAULT NULL,
-    published_at DATETIME DEFAULT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_video_assets_categories FOREIGN KEY (category_id) REFERENCES video_categories(id)
-        ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT fk_video_assets_created_by FOREIGN KEY (created_by) REFERENCES users(id)
         ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -167,12 +148,3 @@ CREATE TABLE video_reports (
     CONSTRAINT fk_video_reports_user FOREIGN KEY (user_id) REFERENCES users(id)
         ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Default seed data for roles
-INSERT INTO roles (name, description) VALUES
-('Chief IT', 'Full system access and user management'),
-('Senior Editor', 'Content management and review'),
-('Camera Man', 'Equipment usage and field tracking'),
-('CEO', 'Executive oversight and reporting'),
-('Production Manager', 'Media pipeline management'),
-('Presenter', 'Program presentation and scheduling');

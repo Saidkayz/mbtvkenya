@@ -109,8 +109,8 @@
                 <div class="w-1 h-5 bg-secondary rounded-full"></div>
                 <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Operations Intelligence</h3>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Card 1 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1: Equipment -->
                 <div class="bg-surface border border-white/5 p-5 rounded-2xl group hover:border-primary/20 transition-all shadow-xl">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="p-2.5 bg-sky-500/10 rounded-xl border border-sky-500/20">
@@ -123,10 +123,10 @@
                     </div>
                     <div class="flex items-center justify-between text-[9px] mt-4 border-t border-white/5 pt-3">
                         <span class="text-slate-500 uppercase tracking-widest font-bold">Physical Assets</span>
-                        <span class="text-sky-400 font-black">LOGGED</span>
+                        <span class="text-sky-400 font-black italic">LOGGED</span>
                     </div>
                 </div>
-                <!-- Card 2 -->
+                <!-- Card 2: Personnel -->
                 <div class="bg-surface border border-white/5 p-5 rounded-2xl group hover:border-secondary/20 transition-all shadow-xl">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="p-2.5 bg-amber-500/10 rounded-xl border border-amber-500/20">
@@ -139,10 +139,10 @@
                     </div>
                     <div class="flex items-center justify-between text-[9px] mt-4 border-t border-white/5 pt-3">
                         <span class="text-slate-500 uppercase tracking-widest font-bold italic">Authorized Directory</span>
-                        <span class="text-emerald-400 font-black">LIVE</span>
+                        <span class="text-emerald-400 font-black italic">LIVE</span>
                     </div>
                 </div>
-                <!-- Card 3 -->
+                <!-- Card 3: Media -->
                 <div class="bg-surface border border-white/5 p-5 rounded-2xl group hover:border-emerald-500/20 transition-all shadow-xl">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="p-2.5 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
@@ -154,10 +154,62 @@
                         </div>
                     </div>
                     <div class="flex items-center justify-between text-[9px] mt-4 border-t border-white/5 pt-3">
-                        <span class="text-slate-500 uppercase tracking-widest font-bold">Content Assets</span>
-                        <span class="text-emerald-400 font-black">PUBLISHED</span>
+                        <span class="text-slate-500 uppercase tracking-widest font-bold italic">Pending Assets</span>
+                        <span id="stat-video-pending" class="text-amber-400 font-black italic">-- PENDING</span>
                     </div>
                 </div>
+                <!-- Card 4: Logistics -->
+                <div class="bg-surface border border-white/5 p-5 rounded-2xl group hover:border-error/20 transition-all shadow-xl">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="p-2.5 bg-rose-500/10 rounded-xl border border-rose-500/20">
+                            <span class="material-symbols-outlined text-rose-400 text-lg">pending_actions</span>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-slate-500 font-black uppercase tracking-widest leading-none mb-1">Pending Returns</p>
+                            <h3 id="stat-pending-returns" class="text-xl font-headline font-black text-white">--</h3>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-[9px] mt-4 border-t border-white/5 pt-3">
+                        <span class="text-slate-500 uppercase tracking-widest font-bold italic">Active Checkouts</span>
+                        <span class="text-rose-400 font-black italic">ATTENTION</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Storage & Health Summary -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
+            <div class="lg:col-span-8 bg-surface border border-white/5 p-6 rounded-2xl shadow-xl flex items-center justify-between">
+                <div class="flex items-center gap-6">
+                    <div class="p-4 bg-primary/10 rounded-2xl text-primary">
+                        <span class="material-symbols-outlined text-3xl">database</span>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-headline font-black text-white uppercase tracking-tight italic">Cloud Infrastructure</h4>
+                        <p class="text-[9px] text-slate-500 uppercase tracking-widest font-bold mt-0.5">High-availability storage cluster</p>
+                    </div>
+                </div>
+                <div class="flex-1 max-w-xs px-8">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Storage Load</span>
+                        <span id="storage-util-text" class="text-[10px] font-black text-primary italic">--% Full</span>
+                    </div>
+                    <div class="h-1.5 w-full bg-background rounded-full overflow-hidden border border-white/5">
+                        <div id="storage-util-bar" class="h-full bg-primary transition-all duration-1000 ease-out" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg text-[8px] font-black uppercase tracking-widest">Optimized</span>
+                </div>
+            </div>
+            <div class="lg:col-span-4 bg-surface border border-white/5 p-6 rounded-2xl shadow-xl flex items-center gap-4">
+               <div class="p-3 bg-secondary/10 rounded-xl text-secondary">
+                   <span class="material-symbols-outlined">security_update_good</span>
+               </div>
+               <div>
+                   <h4 class="text-[10px] font-black text-white uppercase tracking-widest italic">System Integrity</h4>
+                   <p class="text-[8px] text-slate-500 font-bold uppercase mt-1">Version 2.4.0 • Patch Verified</p>
+               </div>
             </div>
         </div>
 

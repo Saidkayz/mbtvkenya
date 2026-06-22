@@ -80,7 +80,7 @@ switch ($action) {
  */
 function handleRegister($conn, $data, $auth) {
     // Validate required fields
-    $required = ['full_name', 'username', 'email', 'phone', 'password', 'role_id'];
+    $required = ['full_name', 'username', 'email', 'phone', 'password', 'role'];
     foreach ($required as $field) {
         if (empty($data[$field])) {
             http_response_code(400);
@@ -94,18 +94,18 @@ function handleRegister($conn, $data, $auth) {
     $email = trim($data['email']);
     $phone = trim($data['phone']);
     $password = $data['password'];
-    $roleId = (int)$data['role_id'];
+    $role = $data['role'];
 
     // If there is no admin user yet, make the first registration an admin account.
-    $adminCheck = $conn->prepare('SELECT id FROM users WHERE role_id = 1 LIMIT 1');
+    $adminCheck = $conn->prepare("SELECT id FROM users WHERE role = 'Chief IT' LIMIT 1");
     $adminCheck->execute();
     $adminResult = $adminCheck->get_result();
     $hasAdmin = $adminResult->num_rows > 0;
     $adminCheck->close();
 
     if (!$hasAdmin) {
-        $roleId = 1;
-    } elseif ($roleId === 1) {
+        $role = 'Chief IT';
+    } elseif ($role === 'Chief IT') {
         http_response_code(400);
         echo json_encode(['error' => 'Admin accounts must be created by an existing administrator']);
         return;
@@ -118,18 +118,13 @@ function handleRegister($conn, $data, $auth) {
         return;
     }
 
-    // Verify role exists
-    $roleCheck = $conn->prepare('SELECT id FROM roles WHERE id = ?');
-    $roleCheck->bind_param('i', $roleId);
-    $roleCheck->execute();
-    $roleResult = $roleCheck->get_result();
-    if ($roleResult->num_rows === 0) {
+    // Validate role
+    $validRoles = ['Chief IT', 'Senior Editor', 'Camera Man', 'CEO', 'Production Manager', 'Presenter'];
+    if (!in_array($role, $validRoles)) {
         http_response_code(400);
         echo json_encode(['error' => 'Invalid role selected']);
-        $roleCheck->close();
         return;
     }
-    $roleCheck->close();
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         http_response_code(400);
@@ -174,10 +169,10 @@ function handleRegister($conn, $data, $auth) {
     // Check if requester is Chief IT (Direct registration)
     if ($auth->isLoggedIn() && $auth->isChiefIT()) {
         $stmt = $conn->prepare(
-            'INSERT INTO users (username, full_name, email, phone, password_hash, role_id, created_at) 
+            'INSERT INTO users (username, full_name, email, phone, password_hash, role, created_at) 
              VALUES (?, ?, ?, ?, ?, ?, NOW())'
         );
-        $stmt->bind_param('sssssi', $username, $fullName, $email, $phone, $hashedPassword, $roleId);
+        $stmt->bind_param('ssssss', $username, $fullName, $email, $phone, $hashedPassword, $role);
         
         if ($stmt->execute()) {
             http_response_code(201);
@@ -199,10 +194,10 @@ function handleRegister($conn, $data, $auth) {
 
     // Insert into temporary verification table
     $stmt = $conn->prepare(
-        'INSERT INTO user_verifications (verification_id, username, full_name, email, phone, password_hash, role_id, otp, otp_expires_at) 
+        'INSERT INTO user_verifications (verification_id, username, full_name, email, phone, password_hash, role, otp, otp_expires_at) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
     );
-    $stmt->bind_param('sssssisss', $verificationId, $username, $fullName, $email, $phone, $hashedPassword, $roleId, $otp, $expiresAt);
+    $stmt->bind_param('sssssssss', $verificationId, $username, $fullName, $email, $phone, $hashedPassword, $role, $otp, $expiresAt);
 
     if ($stmt->execute()) {
         http_response_code(200);
@@ -233,7 +228,7 @@ function handleVerifyOtp($conn, $data) {
 
     // Retrieve pending verification
     $stmt = $conn->prepare(
-        'SELECT id, username, full_name, email, phone, password_hash, role_id, otp, otp_expires_at 
+        'SELECT id, username, full_name, email, phone, password_hash, role, otp, otp_expires_at 
          FROM user_verifications 
          WHERE verification_id = ? AND verified_at IS NULL'
     );
@@ -267,17 +262,17 @@ function handleVerifyOtp($conn, $data) {
 
     // Create user account
     $stmt = $conn->prepare(
-        'INSERT INTO users (username, full_name, email, phone, password_hash, role_id, created_at) 
+        'INSERT INTO users (username, full_name, email, phone, password_hash, role, created_at) 
          VALUES (?, ?, ?, ?, ?, ?, NOW())'
     );
     $stmt->bind_param(
-        'sssssi',
+        'ssssss',
         $verification['username'],
         $verification['full_name'],
         $verification['email'],
         $verification['phone'],
         $verification['password_hash'],
-        $verification['role_id']
+        $verification['role']
     );
 
     if ($stmt->execute()) {
@@ -319,7 +314,7 @@ function handleLogin($conn, $data, $auth) {
 
     // Get user by username
     $stmt = $conn->prepare(
-        'SELECT id, username, email, full_name, password_hash, role_id FROM users WHERE username = ? LIMIT 1'
+        'SELECT id, username, email, full_name, password_hash, role FROM users WHERE username = ? LIMIT 1'
     );
     $stmt->bind_param('s', $username);
     $stmt->execute();
@@ -348,8 +343,7 @@ function handleLogin($conn, $data, $auth) {
     }
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['username'] = $user['username'];
-    $_SESSION['role_id'] = $user['role_id'];
-    $_SESSION['role_name'] = $auth->fetchRoleName($user['role_id']);
+    $_SESSION['role_name'] = $user['role'];
 
     http_response_code(200);
     echo json_encode([
@@ -360,8 +354,7 @@ function handleLogin($conn, $data, $auth) {
             'username' => $user['username'],
             'full_name' => $user['full_name'],
             'email' => $user['email'],
-            'role_id' => $user['role_id'],
-            'role_name' => $_SESSION['role_name']
+            'role_name' => $user['role']
         ]
     ]);
 }
@@ -372,8 +365,7 @@ function handleLogin($conn, $data, $auth) {
 function handleListUsers($conn, $auth) {
     $auth->requireChiefIT();
     
-    $result = $conn->query('SELECT u.id, u.username, u.email, u.full_name, u.phone, u.status, r.name as role_name 
-                            FROM users u JOIN roles r ON u.role_id = r.id');
+    $result = $conn->query('SELECT id, username, email, full_name, phone, role FROM users');
     $users = [];
     while ($row = $result->fetch_assoc()) {
         $users[] = $row;
@@ -388,11 +380,14 @@ function handleListUsers($conn, $auth) {
 function handleListRoles($conn, $auth) {
     $auth->requireLogin();
     
-    $result = $conn->query('SELECT id, name, description FROM roles ORDER BY id ASC');
-    $roles = [];
-    while ($row = $result->fetch_assoc()) {
-        $roles[] = $row;
-    }
+    $roles = [
+        ['id' => 'Chief IT', 'name' => 'Chief IT'],
+        ['id' => 'Senior Editor', 'name' => 'Senior Editor'],
+        ['id' => 'Camera Man', 'name' => 'Camera Man'],
+        ['id' => 'CEO', 'name' => 'CEO'],
+        ['id' => 'Production Manager', 'name' => 'Production Manager'],
+        ['id' => 'Presenter', 'name' => 'Presenter']
+    ];
     
     echo json_encode(['success' => true, 'roles' => $roles]);
 }

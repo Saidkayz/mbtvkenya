@@ -69,6 +69,10 @@ function handleStats($conn) {
     $r = $conn->query("SELECT COUNT(*) AS cnt FROM video_assets WHERE status != 'deleted'");
     if ($r) $videoTotal = (int)$r->fetch_assoc()['cnt'];
 
+    $videoPending = 0;
+    $r = $conn->query("SELECT COUNT(*) AS cnt FROM video_assets WHERE status = 'Pending'");
+    if ($r) $videoPending = (int)$r->fetch_assoc()['cnt'];
+
     // Equipment stats
     $equipTotal = 0;
     $r = $conn->query("SELECT COUNT(*) AS cnt FROM equipment WHERE status != 'retired'");
@@ -83,6 +87,11 @@ function handleStats($conn) {
     $r = $conn->query("SELECT COUNT(*) AS cnt FROM users WHERE status != 'deleted'");
     if ($r) $userTotal = (int)$r->fetch_assoc()['cnt'];
 
+    // Pending Returns (Checkouts that are not yet returned)
+    $pendingReturns = 0;
+    $r = $conn->query("SELECT COUNT(*) AS cnt FROM equipment_checkouts WHERE status = 'checked_out'");
+    if ($r) $pendingReturns = (int)$r->fetch_assoc()['cnt'];
+
     // Mock storage utilization for demo
     $storageUsedGb = 450; 
     $storageTotalGb = 1024;
@@ -91,9 +100,11 @@ function handleStats($conn) {
     echo json_encode([
         'success'            => true,
         'total_videos'       => $videoTotal,
+        'video_pending'      => $videoPending,
         'total_equipment'    => $equipTotal,
         'available_equipment'=> $equipAvailable,
         'total_users'        => $userTotal,
+        'pending_returns'    => $pendingReturns,
         'availability_pct'   => $equipTotal > 0 ? round(($equipAvailable / $equipTotal) * 100) : 0,
         'storage_used_gb'    => $storageUsedGb,
         'storage_total_gb'   => $storageTotalGb,

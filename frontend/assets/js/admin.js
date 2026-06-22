@@ -1,159 +1,209 @@
 /* Admin Dashboard Script for MBTV Kenya
-   Handles Admin-specific UI and User Management.
+   Handles Dashboard logic, visualizations, and activity logs.
 */
 
 window.addEventListener('DOMContentLoaded', () => {
-    const { endpoints, fetchJson, showToast, getCurrentUser, checkAuth, serializeForm } = MBTV_CORE;
+    const { endpoints, fetchJson, showToast, getCurrentUser, checkAuth } = MBTV_CORE;
 
-    const setAdminUI = () => {
+    let equipmentChartInstance = null;
+    let growthChartInstance = null;
+
+    // ─── Nav: display authenticated user name & role ─────────────────────────
+    const renderNavUser = () => {
         const user = getCurrentUser();
         if (!user) return;
 
+        const nameEl = document.getElementById('nav-user-name');
+        const roleEl = document.getElementById('nav-user-role');
+        const avatarEl = document.getElementById('nav-user-avatar');
+
+        if (nameEl) nameEl.textContent = user.full_name || user.username || 'Unknown';
+        if (roleEl) roleEl.textContent = user.role_name || '—';
+        if (avatarEl && (user.full_name || user.username)) {
+            avatarEl.textContent = (user.full_name || user.username).charAt(0).toUpperCase();
+        }
+    };
+
+    // ─── Dashboard summary cards ──────────────────────────────────────────────
+    const loadDashboardStats = async () => {
+        try {
+            const data = await fetchJson(endpoints.dashboard, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'stats' })
+            });
+
+            if (!data.success) return;
+
+            const set = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = typeof value === 'number' ? value.toLocaleString() : value;
+            };
+
+            set('stat-total-videos',    data.total_videos);
+            set('stat-total-equipment', data.total_equipment);
+            set('stat-available-units', data.available_equipment);
+            set('stat-active-users',    data.total_users);
+            set('storage-util-text',    `${data.storage_pct}% Full`);
+
+            const storageBar = document.getElementById('storage-util-bar');
+            if (storageBar) {
+                setTimeout(() => {
+                    storageBar.style.width = `${data.storage_pct}%`;
+                }, 100);
+            }
+
+        } catch (e) {
+            console.warn('Failed to load dashboard stats:', e.message);
+        }
+    };
+
+    // ─── Dashboard Visualization (Charts) ─────────────────────────────────────
+    const initDashboardCharts = async () => {
+        const equipCtx = document.getElementById('equipmentChart')?.getContext('2d');
+        const growthCtx = document.getElementById('videoGrowthChart')?.getContext('2d');
+        if (!equipCtx || !growthCtx) return;
+
+        try {
+            const data = await fetchJson(endpoints.dashboard, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'chart-data' })
+            });
+
+            if (!data.success) return;
+
+            // 1. Equipment Distribution (Doughnut)
+            const dist = data.equipment_dist || {};
+            if (equipmentChartInstance) equipmentChartInstance.destroy();
+            equipmentChartInstance = new Chart(equipCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(dist).map(s => s.toUpperCase()),
+                    datasets: [{
+                        data: Object.values(dist),
+                        backgroundColor: ['#9fccef', '#e3c286', '#ffb4ab', '#10b981'],
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { color: '#64748b', font: { family: 'Manrope', size: 10, weight: 'bold' } } }
+                    },
+                    cutout: '75%'
+                }
+            });
+
+            // 2. Video Growth (Line)
+            const trend = data.video_trend || [];
+            if (growthChartInstance) growthChartInstance.destroy();
+            growthChartInstance = new Chart(growthCtx, {
+                type: 'line',
+                data: {
+                    labels: trend.map(t => t.date),
+                    datasets: [{
+                        label: 'Uploads',
+                        data: trend.map(t => t.count),
+                        borderColor: '#9fccef',
+                        backgroundColor: 'rgba(159, 204, 239, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#9fccef'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } },
+                        x: { grid: { display: false }, ticks: { color: '#64748b' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+        } catch (e) {
+            console.warn('Failed to load chart data:', e.message);
+        }
+    };
+
+    // Alert mapping removed as per request.
+
+    // ─── Equipment Activity Log ───────────────────────────────────────────────
+    const loadActivityLog = async () => {
+        const tbody = document.getElementById('activity-log-body');
+        if (!tbody) return;
+
+        try {
+            const data = await fetchJson(endpoints.equipment, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'checkouts' })
+            });
+
+            const checkouts = (data.checkouts || []).slice(0, 5);
+
+            if (checkouts.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-8 py-10 text-center text-slate-500 text-sm">No activity recorded.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = checkouts.map(c => {
+                const date = new Date(c.checkout_date);
+                const dateStr = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) + ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                const isOut = c.status === 'checked_out' || c.status === 'overdue';
+                
+                return `
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="px-8 py-5 text-xs text-slate-500 font-black uppercase tracking-tighter">${dateStr}</td>
+                        <td class="px-8 py-5 text-sm font-bold text-white italic uppercase tracking-tight">${c.equipment_name || 'Item'}</td>
+                        <td class="px-8 py-5 text-sm text-slate-300 font-bold uppercase italic">${c.recipient_name || 'Staff Member'}</td>
+                        <td class="px-8 py-5 text-right">
+                            <span class="px-2 py-0.5 rounded border text-[10px] font-black uppercase tracking-widest ${isOut ? 'text-primary bg-primary/10 border-primary/20' : 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20'}">
+                                ${isOut ? 'OUT' : 'RETURNED'}
+                            </span>
+                        </td>
+                    </tr>`;
+            }).join('');
+
+        } catch (e) {
+            console.warn('Activity log load failed:', e.message);
+        }
+    };
+
+    // ─── Role-based UI visibility ─────────────────────────────────────────────
+    const setAdminUI = () => {
+        const user = getCurrentUser();
+        if (!user) return;
         const isChief = user.role_name === 'Chief IT';
-        
         document.querySelectorAll('.chief-only').forEach(el => {
             el.classList.toggle('hidden', !isChief);
         });
-
-        if (isChief && document.getElementById('user-management-table')) {
-            loadUserManagement();
-            loadRoles();
-        }
     };
 
-    const loadRoles = async () => {
-        const roleSelect = document.getElementById('new-user-role');
-        if (!roleSelect) return;
-
-        try {
-            const result = await fetchJson(endpoints.users, { 
-                method: 'POST',
-                body: JSON.stringify({ action: 'list-roles' })
-            });
-            if (result.success) {
-                roleSelect.innerHTML = result.roles.map(r => 
-                    `<option value="${r.id}">${r.name}</option>`
-                ).join('');
-            }
-        } catch (e) {
-            console.error('Failed to load roles', e);
-        }
-    };
-
-    const loadUserManagement = async () => {
-        const tableBody = document.getElementById('user-management-body');
-        if (!tableBody) return;
-
-        try {
-            const result = await fetchJson(endpoints.users, { 
-                method: 'POST',
-                body: JSON.stringify({ action: 'list-users' })
-            });
-            tableBody.innerHTML = result.users.map(u => `
-                <tr class="hover:bg-white/5 transition-colors border-b border-white/5">
-                    <td class="px-6 py-4 text-sm font-medium">${u.full_name}</td>
-                    <td class="px-6 py-4 text-sm text-on-surface-variant">${u.username}</td>
-                    <td class="px-6 py-4 text-sm text-on-surface-variant">${u.role_name}</td>
-                    <td class="px-6 py-4 text-sm">
-                        <button data-action="delete-user-action" data-id="${u.id}" class="text-error hover:text-red-400">
-                             <span class="material-symbols-outlined text-lg">delete</span>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        } catch (e) {
-            console.error('Failed to load users', e);
-        }
-    };
-
+    // ─── Global action delegation ─────────────────────────────────────────────
     const bindGlobalActions = () => {
-        document.addEventListener('click', async (event) => {
-            const button = event.target.closest('button[data-action], a[data-action]');
+        document.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-action]');
             if (!button) return;
             const action = button.dataset.action;
 
-            switch (action) {
-                case 'logout':
-                    event.preventDefault();
-                    localStorage.removeItem('mbtv_user');
-                    const isPage = window.location.pathname.includes('/pages/');
-                    window.location.href = isPage ? '../index.html' : 'index.html';
-                    break;
-                case 'delete-user-action':
-                    const userId = button.dataset.id;
-                    if (confirm('Are you sure you want to delete this user?')) {
-                        try {
-                            await fetchJson(endpoints.users, {
-                                method: 'POST',
-                                body: JSON.stringify({ action: 'delete-user', user_id: userId })
-                            });
-                            showToast('User deleted', 'success');
-                            loadUserManagement();
-                        } catch (e) {
-                            showToast(e.message, 'error');
-                        }
-                    }
-                    break;
-                case 'send-reminder':
-                    showToast('Reminder sent to staff', 'success');
-                    break;
-                case 'reorder-equipment':
-                    showToast('Equipment reorder requested', 'success');
-                    break;
-                case 'start-ingest':
-                    showToast('Media ingest process started', 'success');
-                    break;
+            if (action === 'logout') {
+                event.preventDefault();
+                localStorage.removeItem('mbtv_user');
+                window.location.href = window.location.pathname.includes('/pages/') ? '../index.html' : 'index.html';
             }
         });
     };
 
-    const bindUserModal = () => {
-        const modal = document.getElementById('add-user-modal');
-        const trigger = document.getElementById('add-user-trigger');
-        const closeBtn = document.getElementById('close-user-modal');
-        const form = document.getElementById('admin-create-user-form');
-
-        if (!modal || !trigger) return;
-
-        trigger.addEventListener('click', () => {
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.querySelector('div')?.classList.remove('scale-95'), 10);
-        });
-
-        const closeModal = () => {
-            modal.querySelector('div')?.classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 200);
-            form?.reset();
-        };
-
-        closeBtn?.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
-        });
-
-        form?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = serializeForm(form);
-            payload.action = 'register';
-
-            try {
-                await fetchJson(endpoints.users, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-
-                showToast('User created successfully', 'success');
-                closeModal();
-                loadUserManagement();
-            } catch (err) {
-                showToast(err.message || 'Failed to create user', 'error');
-            }
-        });
-    };
-
-    // Initialize
+    // ─── Initialise ───────────────────────────────────────────────────────────
     checkAuth();
+    renderNavUser();
     setAdminUI();
+    loadDashboardStats();
+    loadActivityLog();
+    initDashboardCharts();
     bindGlobalActions();
-    bindUserModal();
 });

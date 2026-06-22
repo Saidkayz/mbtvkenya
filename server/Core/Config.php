@@ -1,6 +1,11 @@
 <?php
 // Database Configuration for MBTV Kenya Application
 
+// Session configuration (24-hour sliding window)
+ini_set('session.gc_maxlifetime', 86400);
+session_set_cookie_params(86400);
+session_start();
+
 function getDbConnection() {
     $dbHost = 'localhost';
     $dbUser = 'root';

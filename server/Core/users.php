@@ -319,7 +319,7 @@ function handleLogin($conn, $data, $auth) {
 
     // Get user by username
     $stmt = $conn->prepare(
-        'SELECT id, username, email, password_hash, role_id FROM users WHERE username = ? LIMIT 1'
+        'SELECT id, username, email, full_name, password_hash, role_id FROM users WHERE username = ? LIMIT 1'
     );
     $stmt->bind_param('s', $username);
     $stmt->execute();
@@ -358,6 +358,7 @@ function handleLogin($conn, $data, $auth) {
         'user' => [
             'id' => $user['id'],
             'username' => $user['username'],
+            'full_name' => $user['full_name'],
             'email' => $user['email'],
             'role_id' => $user['role_id'],
             'role_name' => $_SESSION['role_name']

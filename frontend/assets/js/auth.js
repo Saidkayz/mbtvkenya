@@ -53,6 +53,9 @@ window.addEventListener('DOMContentLoaded', () => {
                     method: 'POST',
                     body: JSON.stringify(payload),
                 });
+                const now = Date.now();
+                result.user.loginTime  = now;
+                result.user.lastActive = now;
                 localStorage.setItem('mbtv_user', JSON.stringify(result.user));
                 showToast('Login successful', 'success');
                 

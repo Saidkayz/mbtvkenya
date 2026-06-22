@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Personnel Management | MBTV HUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                  primary: "#9fccef",
+                  secondary: "#e3c286",
+                  background: "#111316",
+                  surface: "#1e2023",
+                  "surface-low": "#1a1c1f",
+                  "on-surface": "#e2e2e6",
+                  "on-surface-variant": "#c1c7ce",
+                  error: "#ffb4ab",
+              },
+              fontFamily: {
+                  headline: ["Manrope"],
+                  body: ["Work Sans"],
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20; }
+        .fill-icon { font-variation-settings: 'FILL' 1; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #111316; }
+        ::-webkit-scrollbar-thumb { background: #1e2023; border-radius: 10px; }
+        
+        .ts-control { background: #111316 !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 0.75rem !important; color: white !important; padding: 0.5rem 0.75rem !important; }
+        .ts-dropdown { background: #1e2023 !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body overflow-x-hidden text-sm">
+
+    <!-- Sidebar Navigation -->
+    <aside class="fixed top-0 left-0 h-full w-60 bg-background border-r border-white/5 flex flex-col z-40 transition-transform duration-300">
+        <div class="px-6 py-8">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-white/5 rounded-xl border border-white/5 shadow-inner">
+                    <img src="../Design/mbtv-kenya.png" alt="MBTV Kenya" class="h-8 w-auto object-contain">
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-lg font-headline font-black text-white leading-tight tracking-tighter uppercase italic">MBTV</span>
+                    <span class="text-[9px] text-primary/80 uppercase tracking-[0.3em] font-bold">Kenya Hub</span>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 px-4 mt-2">
+            <ul class="space-y-1">
+                <li><a href="admin.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><span class="material-symbols-outlined text-lg">dashboard</span><span class="text-[11px] uppercase tracking-widest font-black">Dashboard</span></a></li>
+                <li><a href="video_managment.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><span class="material-symbols-outlined text-lg">video_library</span><span class="text-[11px] uppercase tracking-widest font-black">Video Assets</span></a></li>
+                <li><a href="equipment_management.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><span class="material-symbols-outlined text-lg">videocam</span><span class="text-[11px] uppercase tracking-widest font-black">Equipment</span></a></li>
+                <li class="chief-only hidden"><a href="user_management.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-primary/10 text-primary font-bold"><span class="material-symbols-outlined fill-icon text-lg">manage_accounts</span><span class="text-[11px] uppercase tracking-widest font-black">Personnel</span></a></li>
+                <li><a href="video_reports.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors"><span class="material-symbols-outlined text-lg">analytics</span><span class="text-[11px] uppercase tracking-widest font-black">Reports</span></a></li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t border-white/5">
+            <button data-action="logout" class="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-slate-400 hover:text-error hover:bg-error/5 transition-colors">
+                <span class="material-symbols-outlined text-lg">logout</span><span class="text-[11px] uppercase tracking-widest font-black">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Header -->
+    <header class="fixed top-0 right-0 left-60 z-30 bg-background/60 backdrop-blur-xl flex justify-between items-center px-8 py-3 border-b border-white/5">
+        <div class="flex items-center flex-1">
+            <h2 class="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">Personnel Directory</h2>
+        </div>
+        <div class="flex items-center space-x-6">
+            <div class="flex items-center gap-3">
+                <div class="text-right leading-tight">
+                    <p id="nav-user-name" class="text-[10px] font-black text-white">—</p>
+                    <p id="nav-user-role" class="text-[8px] text-secondary uppercase tracking-tighter">—</p>
+                </div>
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center font-black text-[10px] text-on-primary shadow-lg shadow-primary/20" id="nav-user-avatar">?</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="ml-60 pt-20 px-8 pb-10">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <h1 class="text-2xl font-headline font-black text-white tracking-tighter uppercase italic">Personnel Command</h1>
+                <p class="text-on-surface-variant mt-0.5 text-xs font-medium">System access control and user directory.</p>
+            </div>
+            <button onclick="document.getElementById('user-modal').classList.remove('hidden')" class="bg-primary text-slate-950 px-6 py-3 rounded-xl font-black flex items-center gap-2 shadow-xl shadow-primary/20 hover:brightness-110 transition-all uppercase tracking-widest text-[10px]">
+                <span class="material-symbols-outlined">person_add</span> Initialize User
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-surface border border-white/5 rounded-2xl p-6 mb-8 flex flex-wrap gap-6 items-center shadow-2xl">
+            <div class="flex-1 min-w-[200px]">
+                <label class="text-[8px] font-black uppercase tracking-widest text-slate-500 mb-2 block px-1">Global Search</label>
+                <div class="relative group">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-lg group-focus-within:text-primary transition-colors">search</span>
+                    <input id="user-search" type="text" placeholder="Filter by name, email or username..." class="w-full bg-background border border-white/5 rounded-xl py-3 pl-12 pr-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                </div>
+            </div>
+            <div class="w-64">
+                <label class="text-[8px] font-black uppercase tracking-widest text-slate-500 mb-2 block px-1">Role Permission</label>
+                <select id="role-filter" class="w-full">
+                    <option value="">All Clearances</option>
+                    <!-- Roles load here -->
+                </select>
+            </div>
+        </div>
+
+        <!-- User Table -->
+        <div class="bg-surface border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-background/50 text-[10px] uppercase tracking-[0.2em] font-black text-slate-500 border-b border-white/5">
+                            <th class="px-8 py-5">Personnel</th>
+                            <th class="px-8 py-5">Access Level</th>
+                            <th class="px-8 py-5 text-center">Status</th>
+                            <th class="px-8 py-5">Last Terminal Link</th>
+                            <th class="px-8 py-5 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-table-body" class="divide-y divide-white/5">
+                        <!-- Users load here -->
+                         <tr><td colspan="5" class="px-8 py-16 text-center text-slate-600 font-black uppercase tracking-widest italic italic">Synchronizing Directory...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- User Modal (Add/Edit) -->
+    <div id="user-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-6 hidden">
+        <div class="bg-surface border border-white/10 w-full max-w-lg rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] transform transition-all max-h-[90vh] flex flex-col">
+            <div class="p-8 border-b border-white/5 flex justify-between items-center bg-white/5">
+                <div>
+                    <h3 id="modal-title" class="text-xl font-headline font-black text-white italic uppercase">Initialize User</h3>
+                    <p class="text-[8px] text-primary uppercase font-black tracking-widest mt-0.5">System Access Configuration</p>
+                </div>
+                <button onclick="document.getElementById('user-modal').classList.add('hidden')" class="text-slate-500 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="user-form" class="p-8 space-y-6 overflow-y-auto">
+                <input type="hidden" name="id" id="edit-user-id">
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2 col-span-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Full Identity</label>
+                        <input type="text" name="full_name" required class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Communication Channel (Email)</label>
+                    <input type="email" name="email" required class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                </div>
+                <div id="password-field" class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Access Key (Password)</label>
+                    <input type="password" name="password" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                    <p class="text-[8px] text-slate-500 font-bold uppercase italic">Leave blank to keep existing key if editing.</p>
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2 text-slate-900">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Clearance Level</label>
+                        <select name="role_id" id="modal-role-select" required class="w-full"></select>
+                    </div>
+                    <div class="space-y-2 text-slate-900">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Deployment Status</label>
+                        <select name="status" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white appearance-none">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="suspended">Suspended</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex gap-4 pt-6">
+                    <button type="button" onclick="document.getElementById('user-modal').classList.add('hidden')" class="flex-1 px-6 py-4 rounded-xl border border-white/5 text-slate-400 font-black uppercase tracking-widest text-[10px] hover:bg-white/5 transition-all">Cancel</button>
+                    <button type="submit" class="flex-2 bg-primary text-slate-950 px-10 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 hover:brightness-110 transition-all">Commit Configuration</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../assets/js/core.js"></script>
+    <script src="../assets/js/users_page.js"></script>
+</body>
+</html>

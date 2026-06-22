@@ -88,31 +88,142 @@ const MBTV_CORE = (() => {
         return response.json();
     };
 
-    const showToast = (message, type = 'info') => {
-        const toastRoot = document.getElementById('mbtv-toast-root') || createToastRoot();
-        const toast = document.createElement('div');
-        toast.className = `mbtv-toast mbtv-toast--${type}`;
-        toast.textContent = message;
-        toastRoot.appendChild(toast);
-        window.setTimeout(() => toast.classList.add('visible'), 10);
-        window.setTimeout(() => {
-            toast.classList.remove('visible');
-            window.setTimeout(() => toast.remove(), 300);
-        }, 3000);
+    /* ── Toast notification system ──────────────────────────────────────── */
+    const _injectToastStyles = () => {
+        if (document.getElementById('mbtv-toast-styles')) return;
+        const style = document.createElement('style');
+        style.id = 'mbtv-toast-styles';
+        style.textContent = `
+            #mbtv-toast-root {
+                position: fixed;
+                bottom: 1.5rem;
+                right: 1.5rem;
+                z-index: 99999;
+                display: flex;
+                flex-direction: column;
+                gap: 0.6rem;
+                pointer-events: none;
+            }
+            .mbtv-toast {
+                display: flex;
+                align-items: center;
+                gap: 0.65rem;
+                min-width: 280px;
+                max-width: 380px;
+                padding: 0.85rem 1.1rem;
+                border-radius: 0.75rem;
+                font-family: 'Work Sans', sans-serif;
+                font-size: 0.72rem;
+                font-weight: 700;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+                line-height: 1.4;
+                border: 1px solid;
+                pointer-events: all;
+                cursor: default;
+                backdrop-filter: blur(12px);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3);
+                transform: translateX(calc(100% + 2rem));
+                opacity: 0;
+                transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+                            opacity 0.25s ease;
+            }
+            .mbtv-toast.visible {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            .mbtv-toast.hiding {
+                transform: translateX(calc(100% + 2rem));
+                opacity: 0;
+                transition: transform 0.25s ease, opacity 0.2s ease;
+            }
+            .mbtv-toast__icon {
+                font-size: 1.1rem;
+                flex-shrink: 0;
+                font-family: 'Material Symbols Outlined';
+                font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+            }
+            .mbtv-toast__msg { flex: 1; }
+            .mbtv-toast__close {
+                font-family: 'Material Symbols Outlined';
+                font-variation-settings: 'FILL' 0, 'wght'300, 'GRAD' 0, 'opsz' 20;
+                font-size: 0.9rem;
+                flex-shrink: 0;
+                opacity: 0.5;
+                cursor: pointer;
+                transition: opacity 0.15s;
+            }
+            .mbtv-toast__close:hover { opacity: 1; }
+            /* Type variants */
+            .mbtv-toast--success {
+                background: rgba(16, 185, 129, 0.12);
+                border-color: rgba(16, 185, 129, 0.3);
+                color: #34d399;
+            }
+            .mbtv-toast--error {
+                background: rgba(255, 180, 171, 0.1);
+                border-color: rgba(255, 180, 171, 0.3);
+                color: #ffb4ab;
+            }
+            .mbtv-toast--warning {
+                background: rgba(227, 194, 134, 0.12);
+                border-color: rgba(227, 194, 134, 0.3);
+                color: #e3c286;
+            }
+            .mbtv-toast--info {
+                background: rgba(159, 204, 239, 0.1);
+                border-color: rgba(159, 204, 239, 0.25);
+                color: #9fccef;
+            }
+        `;
+        document.head.appendChild(style);
     };
 
-    const createToastRoot = () => {
-        const root = document.getElementById('mbtv-toast-root') || (() => {
-            const r = document.createElement('div');
-            r.id = 'mbtv-toast-root';
-            r.style.position = 'fixed';
-            r.style.bottom = '1rem';
-            r.style.right = '1rem';
-            r.style.zIndex = '9999';
-            document.body.appendChild(r);
-            return r;
-        })();
+    const _createToastRoot = () => {
+        let root = document.getElementById('mbtv-toast-root');
+        if (!root) {
+            root = document.createElement('div');
+            root.id = 'mbtv-toast-root';
+            document.body.appendChild(root);
+        }
         return root;
+    };
+
+    const _TOAST_ICONS = {
+        success: 'check_circle',
+        error:   'error',
+        warning: 'warning',
+        info:    'info'
+    };
+
+    const showToast = (message, type = 'info', duration = 3500) => {
+        _injectToastStyles();
+        const root = _createToastRoot();
+
+        const toast = document.createElement('div');
+        toast.className = `mbtv-toast mbtv-toast--${type}`;
+        toast.innerHTML = `
+            <span class="mbtv-toast__icon">${_TOAST_ICONS[type] || 'info'}</span>
+            <span class="mbtv-toast__msg">${message}</span>
+            <span class="mbtv-toast__close">close</span>
+        `;
+
+        const dismiss = () => {
+            toast.classList.add('hiding');
+            toast.classList.remove('visible');
+            window.setTimeout(() => toast.remove(), 300);
+        };
+
+        toast.querySelector('.mbtv-toast__close').addEventListener('click', dismiss);
+        root.appendChild(toast);
+
+        // Trigger entrance animation
+        window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => toast.classList.add('visible'));
+        });
+
+        // Auto-dismiss
+        window.setTimeout(dismiss, duration);
     };
 
     const serializeForm = (form) => {

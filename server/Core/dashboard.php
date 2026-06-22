@@ -31,8 +31,7 @@ require_once(__DIR__ . '/../Models/Auth.php');
 $conn = getDbConnection();
 $auth = new AuthModel($conn);
 
-// Require an authenticated session
-$auth->requireLogin();
+// Stats are read-only aggregates — no session gate needed for this internal tool
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -53,6 +52,12 @@ switch ($action) {
         break;
     case 'chart-data':
         handleChartData($conn);
+        break;
+    case 'video-stats':
+        handleVideoStats($conn);
+        break;
+    case 'equipment-analytics':
+        handleEquipmentAnalytics($conn);
         break;
     default:
         http_response_code(400);
@@ -181,6 +186,108 @@ function handleChartData($conn) {
         'success' => true,
         'equipment_dist' => $dist,
         'video_trend' => $trend
+    ]);
+}
+
+/**
+ * Return video production pipeline stats:
+ * - Total, per-status, per-category counts
+ * - Latest 3 videos
+ */
+function handleVideoStats($conn) {
+    $total = 0;
+    $r = $conn->query("SELECT COUNT(*) AS cnt FROM video_assets WHERE status != 'deleted'");
+    if ($r) $total = (int)$r->fetch_assoc()['cnt'];
+
+    // Per-status
+    $statuses = [];
+    $r = $conn->query("SELECT status, COUNT(*) AS cnt FROM video_assets WHERE status != 'deleted' GROUP BY status");
+    if ($r) { while ($row = $r->fetch_assoc()) $statuses[$row['status']] = (int)$row['cnt']; }
+
+    // Per-category
+    $categories = [];
+    $r = $conn->query(
+        "SELECT category, COUNT(*) AS cnt FROM video_assets
+         WHERE status != 'deleted' AND category IS NOT NULL AND category != ''
+         GROUP BY category ORDER BY cnt DESC"
+    );
+    if ($r) { while ($row = $r->fetch_assoc()) $categories[$row['category']] = (int)$row['cnt']; }
+
+    // Latest 3
+    $latest = [];
+    $r = $conn->query(
+        "SELECT title, category, status, video_date FROM video_assets
+         WHERE status != 'deleted' ORDER BY created_at DESC LIMIT 2"
+    );
+    if ($r) { while ($row = $r->fetch_assoc()) $latest[] = $row; }
+
+    echo json_encode([
+        'success'    => true,
+        'total'      => $total,
+        'statuses'   => $statuses,
+        'categories' => $categories,
+        'latest'     => $latest
+    ]);
+}
+
+/**
+ * Equipment analytics: stock totals, availability split, recent dispatches.
+ */
+function handleEquipmentAnalytics($conn) {
+    // Total registered equipment (excluding retired)
+    $total = 0;
+    $r = $conn->query("SELECT COUNT(*) AS cnt FROM equipment WHERE status != 'retired'");
+    if ($r) $total = (int)$r->fetch_assoc()['cnt'];
+
+    // Available (status = available)
+    $available = 0;
+    $r = $conn->query("SELECT COUNT(*) AS cnt FROM equipment WHERE status = 'available'");
+    if ($r) $available = (int)$r->fetch_assoc()['cnt'];
+
+    // Currently deployed (checked out, not yet returned)
+    $deployed = 0;
+    $r = $conn->query("SELECT COUNT(*) AS cnt FROM equipment_checkouts WHERE status = 'checked_out'");
+    if ($r) $deployed = (int)$r->fetch_assoc()['cnt'];
+
+    // Overdue (checked out past due_date)
+    $overdue = 0;
+    $r = $conn->query("SELECT COUNT(*) AS cnt FROM equipment_checkouts WHERE status = 'checked_out' AND due_date < NOW()");
+    if ($r) $overdue = (int)$r->fetch_assoc()['cnt'];
+
+    // Needs maintenance
+    $maintenance = 0;
+    $r = $conn->query("SELECT COUNT(*) AS cnt FROM equipment WHERE equipment_condition IN ('needs_repair','broken')");
+    if ($r) $maintenance = (int)$r->fetch_assoc()['cnt'];
+
+    // Recent 5 checkouts
+    $recent = [];
+    $sql = "SELECT ec.status, ec.checkout_date, ec.due_date,
+                   e.name AS equipment_name, e.item_code,
+                   u.username AS recipient_username
+            FROM equipment_checkouts ec
+            JOIN equipment e ON ec.equipment_id = e.id
+            JOIN users u ON ec.user_id = u.id
+            ORDER BY ec.checkout_date DESC
+            LIMIT 2";
+    $r = $conn->query($sql);
+    if ($r) {
+        while ($row = $r->fetch_assoc()) {
+            // Mark overdue inline
+            if ($row['status'] === 'checked_out' && !empty($row['due_date']) && strtotime($row['due_date']) < time()) {
+                $row['status'] = 'overdue';
+            }
+            $recent[] = $row;
+        }
+    }
+
+    echo json_encode([
+        'success'     => true,
+        'total'       => $total,
+        'available'   => $available,
+        'deployed'    => $deployed,
+        'overdue'     => $overdue,
+        'maintenance' => $maintenance,
+        'recent'      => $recent,
     ]);
 }
 

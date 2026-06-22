@@ -228,17 +228,19 @@ window.addEventListener('DOMContentLoaded', () => {
     if (prevBtn) prevBtn.addEventListener('click', () => updateStep(currentStep - 1));
 
     const handleSearch = () => {
-        const category = document.getElementById('category-filter').value;
+        const searchInput = document.getElementById('video-search');
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const category = document.getElementById('category-filter')?.value || '';
 
         const filtered = allVideos.filter(v => {
-            const matchesQuery = !query || 
+            const matchesQuery = !query ||
                 v.title.toLowerCase().includes(query) ||
                 (v.location && v.location.toLowerCase().includes(query)) ||
                 (v.camera_operator && v.camera_operator.toLowerCase().includes(query)) ||
                 (v.camera_number && v.camera_number.toLowerCase().includes(query)) ||
                 (v.speaker && v.speaker.toLowerCase().includes(query)) ||
                 (v.code && v.code.toLowerCase().includes(query));
-            
+
             const matchesCategory = !category || v.category === category;
 
             return matchesQuery && matchesCategory;

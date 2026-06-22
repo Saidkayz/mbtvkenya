@@ -1,37 +1,43 @@
-/* Admin Dashboard Script for MBTV Kenya
-   Handles Dashboard logic, visualizations, and activity logs.
-*/
+/* =====================================================================
+   MBTV Kenya – Admin Dashboard
+   Handles stats cards, video analytics charts, equipment analytics.
+   ===================================================================== */
 
 window.addEventListener('DOMContentLoaded', () => {
     const { endpoints, fetchJson, showToast, getCurrentUser, checkAuth } = MBTV_CORE;
 
-    let equipmentChartInstance = null;
-    let growthChartInstance = null;
+    // Chart instances (kept so we can destroy before re-render)
+    let videoStatusChartInst   = null;
+    let videoCategoryChartInst = null;
+    let equipAvailChartInst    = null;
 
-    // ─── Nav: display authenticated user name & role ─────────────────────────
+    // ─── Chart.js global defaults ─────────────────────────────────────────────
+    if (typeof Chart !== 'undefined') {
+        Chart.defaults.font.family  = "'Work Sans', sans-serif";
+        Chart.defaults.color        = '#64748b';
+    }
+
+    // ─── Nav: display authenticated user ─────────────────────────────────────
     const renderNavUser = () => {
         const user = getCurrentUser();
         if (!user) return;
-
-        const nameEl = document.getElementById('nav-user-name');
-        const roleEl = document.getElementById('nav-user-role');
+        const nameEl   = document.getElementById('nav-user-name');
+        const roleEl   = document.getElementById('nav-user-role');
         const avatarEl = document.getElementById('nav-user-avatar');
-
-        if (nameEl) nameEl.textContent = user.full_name || user.username || 'Unknown';
-        if (roleEl) roleEl.textContent = user.role_name || '—';
+        if (nameEl)   nameEl.textContent   = user.full_name || user.username || 'Unknown';
+        if (roleEl)   roleEl.textContent   = user.role_name || '—';
         if (avatarEl && (user.full_name || user.username)) {
             avatarEl.textContent = (user.full_name || user.username).charAt(0).toUpperCase();
         }
     };
 
-    // ─── Dashboard summary cards ──────────────────────────────────────────────
+    // ─── Top summary stat cards ───────────────────────────────────────────────
     const loadDashboardStats = async () => {
         try {
             const data = await fetchJson(endpoints.dashboard, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'stats' })
             });
-
             if (!data.success) return;
 
             const set = (id, value) => {
@@ -40,141 +46,245 @@ window.addEventListener('DOMContentLoaded', () => {
             };
 
             set('stat-total-videos',    data.total_videos);
-            set('stat-video-pending',   data.video_pending);
+            set('stat-video-pending',   `${data.video_pending} PENDING`);
             set('stat-total-equipment', data.total_equipment);
             set('stat-total-users',     data.total_users);
             set('stat-pending-returns', data.pending_returns);
-            set('storage-util-text',    `${data.storage_pct}% Full`);
-
-            const storageBar = document.getElementById('storage-util-bar');
-            if (storageBar) {
-                setTimeout(() => {
-                    storageBar.style.width = `${data.storage_pct}%`;
-                }, 100);
-            }
-
         } catch (e) {
-            console.warn('Failed to load dashboard stats:', e.message);
+            console.warn('Stats load failed:', e.message);
         }
     };
 
-    // ─── Dashboard Visualization (Charts) ─────────────────────────────────────
-    const initDashboardCharts = async () => {
-        const equipCtx = document.getElementById('equipmentChart')?.getContext('2d');
-        const growthCtx = document.getElementById('videoGrowthChart')?.getContext('2d');
-        if (!equipCtx || !growthCtx) return;
-
+    // ─── Video Production Analytics ───────────────────────────────────────────
+    const loadVideoSection = async () => {
         try {
             const data = await fetchJson(endpoints.dashboard, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'chart-data' })
+                body: JSON.stringify({ action: 'video-stats' })
             });
-
             if (!data.success) return;
 
-            // 1. Equipment Distribution (Doughnut)
-            const dist = data.equipment_dist || {};
-            if (equipmentChartInstance) equipmentChartInstance.destroy();
-            equipmentChartInstance = new Chart(equipCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(dist).map(s => s.toUpperCase()),
-                    datasets: [{
-                        data: Object.values(dist),
-                        backgroundColor: ['#9fccef', '#e3c286', '#ffb4ab', '#10b981'],
-                        borderWidth: 0,
-                        hoverOffset: 15
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { position: 'bottom', labels: { color: '#64748b', font: { family: 'Manrope', size: 10, weight: 'bold' } } }
+            const total      = data.total    || 0;
+            const statuses   = data.statuses || {};
+            const categories = data.categories || {};
+
+            // ── Total counter ──────────────────────────────────────────────
+            const setEl = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+            setEl('video-stat-total',    total);
+            setEl('video-donut-center',  total);
+
+            // ── Status pill badges ─────────────────────────────────────────
+            setEl('vstat-pending',   statuses['Pending']          || 0);
+            setEl('vstat-edit',      statuses['Edit In Progress'] || 0);
+            setEl('vstat-completed', statuses['Completed']        || 0);
+            setEl('vstat-archived',  statuses['Archived']         || 0);
+
+            // ── Status Doughnut Chart ──────────────────────────────────────
+            const statusList = [
+                { label: 'Pending',          color: '#f59e0b' },
+                { label: 'Edit In Progress', color: '#60a5fa' },
+                { label: 'Review',           color: '#a78bfa' },
+                { label: 'Completed',        color: '#34d399' },
+                { label: 'Archived',         color: '#475569' },
+            ];
+            const statusCounts = statusList.map(s => statuses[s.label] || 0);
+            const statusColors = statusList.map(s => s.color);
+
+            const statusCtx = document.getElementById('videoStatusChart')?.getContext('2d');
+            if (statusCtx) {
+                if (videoStatusChartInst) videoStatusChartInst.destroy();
+                videoStatusChartInst = new Chart(statusCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels:   statusList.map(s => s.label),
+                        datasets: [{
+                            data:            statusCounts,
+                            backgroundColor: statusColors,
+                            borderWidth:     0,
+                            hoverOffset:     10,
+                        }]
                     },
-                    cutout: '75%'
-                }
-            });
-
-            // 2. Video Growth (Line)
-            const trend = data.video_trend || [];
-            if (growthChartInstance) growthChartInstance.destroy();
-            growthChartInstance = new Chart(growthCtx, {
-                type: 'line',
-                data: {
-                    labels: trend.map(t => t.date),
-                    datasets: [{
-                        label: 'Uploads',
-                        data: trend.map(t => t.count),
-                        borderColor: '#9fccef',
-                        backgroundColor: 'rgba(159, 204, 239, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#9fccef'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } },
-                        x: { grid: { display: false }, ticks: { color: '#64748b' } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
-
-        } catch (e) {
-            console.warn('Failed to load chart data:', e.message);
-        }
-    };
-
-    // Alert mapping removed as per request.
-
-    // ─── Equipment Activity Log ───────────────────────────────────────────────
-    const loadActivityLog = async () => {
-        const tbody = document.getElementById('activity-log-body');
-        if (!tbody) return;
-
-        try {
-            const data = await fetchJson(endpoints.equipment, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'checkouts' })
-            });
-
-            const checkouts = (data.checkouts || []).slice(0, 5);
-
-            if (checkouts.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-8 py-10 text-center text-slate-500 text-sm">No activity recorded.</td></tr>`;
-                return;
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        cutout: '74%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}` } }
+                        }
+                    }
+                });
             }
 
-            tbody.innerHTML = checkouts.map(c => {
-                const date = new Date(c.checkout_date);
-                const dateStr = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) + ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-                const isOut = c.status === 'checked_out' || c.status === 'overdue';
-                
-                return `
-                    <tr class="hover:bg-white/5 transition-colors">
-                        <td class="px-8 py-5 text-xs text-slate-500 font-black uppercase tracking-tighter">${dateStr}</td>
-                        <td class="px-8 py-5 text-sm font-bold text-white italic uppercase tracking-tight">${c.equipment_name || 'Item'}</td>
-                        <td class="px-8 py-5 text-sm underline decoration-white/10 underline-offset-4 text-slate-300 font-bold uppercase italic">${c.recipient_name || c.recipient_username || 'Staff Member'}</td>
-                        <td class="px-8 py-5 text-right">
-                            <span class="px-2 py-0.5 rounded border text-[10px] font-black uppercase tracking-widest ${isOut ? 'text-primary bg-primary/10 border-primary/20' : 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20'}">
-                                ${isOut ? 'OUT' : 'RETURNED'}
-                            </span>
-                        </td>
-                    </tr>`;
-            }).join('');
+            // ── Category Horizontal Bar Chart ──────────────────────────────
+            const catCtx = document.getElementById('videoCategoryChart')?.getContext('2d');
+            if (catCtx) {
+                const catLabels = Object.keys(categories);
+                const catValues = Object.values(categories);
+
+                if (videoCategoryChartInst) videoCategoryChartInst.destroy();
+
+                if (catLabels.length === 0) {
+                    // Show placeholder text if no category data
+                    catCtx.canvas.parentElement.innerHTML =
+                        '<p class="text-[9px] text-slate-600 font-black uppercase italic text-center mt-16">No category data yet</p>';
+                } else {
+                    videoCategoryChartInst = new Chart(catCtx, {
+                        type: 'bar',
+                        data: {
+                            labels:   catLabels,
+                            datasets: [{
+                                data:            catValues,
+                                backgroundColor: 'rgba(159, 204, 239, 0.12)',
+                                borderColor:     '#9fccef',
+                                borderWidth:     2,
+                                borderRadius:    6,
+                                borderSkipped:   false,
+                                hoverBackgroundColor: 'rgba(159, 204, 239, 0.25)',
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                x: {
+                                    grid:       { color: 'rgba(255,255,255,0.04)' },
+                                    ticks:      { color: '#64748b', font: { size: 9, weight: '700' } },
+                                    beginAtZero: true,
+                                    border:     { display: false }
+                                },
+                                y: {
+                                    grid:   { display: false },
+                                    ticks:  { color: '#c1c7ce', font: { size: 9, weight: '700' } },
+                                    border: { display: false }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            // ── Latest Captures list ───────────────────────────────────────
+            const list = document.getElementById('latest-videos-list');
+            if (list) {
+                if (data.latest && data.latest.length > 0) {
+                    const statusDot = {
+                        'Pending':          'text-amber-400',
+                        'Edit In Progress': 'text-blue-400',
+                        'Review':           'text-purple-400',
+                        'Completed':        'text-emerald-400',
+                        'Archived':         'text-slate-400'
+                    };
+                    list.innerHTML = data.latest.map(v => {
+                        const date = v.video_date
+                            ? new Date(v.video_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                            : '—';
+                        return `
+                            <div class="flex items-start gap-3">
+                                <span class="material-symbols-outlined ${statusDot[v.status] || 'text-slate-500'} text-sm mt-0.5 shrink-0">radio_button_checked</span>
+                                <div class="min-w-0">
+                                    <p class="text-[10px] font-black text-white uppercase italic truncate leading-tight">${v.title}</p>
+                                    <p class="text-[8px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">${v.category || '—'} · ${date}</p>
+                                </div>
+                            </div>`;
+                    }).join('');
+                } else {
+                    list.innerHTML = '<div class="text-[9px] text-slate-600 font-black uppercase italic">No assets captured yet</div>';
+                }
+            }
 
         } catch (e) {
-            console.warn('Activity log load failed:', e.message);
+            console.warn('Video section load failed:', e.message);
         }
     };
 
-    // ─── Role-based UI visibility ─────────────────────────────────────────────
+    // ─── Equipment Overview Analytics ─────────────────────────────────────────
+    const loadEquipmentAnalytics = async () => {
+        try {
+            const data = await fetchJson(endpoints.dashboard, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'equipment-analytics' })
+            });
+            if (!data.success) return;
+
+            // ── Stat cards ─────────────────────────────────────────────────
+            const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v ?? '--'; };
+            set('eq-stat-total',      data.total       || 0);
+            set('eq-stat-available',  data.available   || 0);
+            set('eq-stat-deployed',   data.deployed    || 0);
+            set('eq-stat-overdue',    data.overdue     || 0);
+            set('equip-donut-center', data.total       || 0);
+
+            // ── Availability Doughnut ──────────────────────────────────────
+            const chartData = [
+                { label: 'Available',    value: data.available   || 0, color: '#34d399' },
+                { label: 'Deployed',     value: data.deployed    || 0, color: '#9fccef' },
+                { label: 'Overdue',      value: data.overdue     || 0, color: '#fb7185' },
+                { label: 'Maintenance',  value: data.maintenance || 0, color: '#e3c286' },
+            ].filter(d => d.value > 0);
+
+            const ctx = document.getElementById('equipAvailChart')?.getContext('2d');
+            if (ctx && chartData.length > 0) {
+                if (equipAvailChartInst) equipAvailChartInst.destroy();
+                equipAvailChartInst = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels:   chartData.map(d => d.label),
+                        datasets: [{
+                            data:            chartData.map(d => d.value),
+                            backgroundColor: chartData.map(d => d.color),
+                            borderWidth:     0,
+                            hoverOffset:     10,
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            // ── Recent Dispatches cards ────────────────────────────────────
+            const dispatches = document.getElementById('recent-dispatches');
+            if (dispatches) {
+                if (data.recent && data.recent.length > 0) {
+                    dispatches.innerHTML = data.recent.map(c => {
+                        const isOverdue = c.status === 'overdue';
+                        const isOut     = c.status === 'checked_out';
+                        const date = c.checkout_date
+                            ? new Date(c.checkout_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
+                            : '—';
+
+                        const statusCls   = isOverdue ? 'text-rose-400 bg-rose-400/10 border-rose-400/20'
+                                          : isOut     ? 'text-primary bg-primary/10 border-primary/20'
+                                          :             'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
+                        const statusLabel = isOverdue ? 'OVERDUE' : isOut ? 'OUT' : 'RETURNED';
+                        const icon        = isOverdue ? 'warning' : 'hardware';
+
+                        return `
+                            <div class="flex items-center gap-4 p-3 rounded-xl bg-white/3 border border-white/5 hover:bg-white/5 transition-all">
+                                <div class="p-2 rounded-lg ${isOverdue ? 'bg-rose-500/10' : 'bg-primary/10'} shrink-0">
+                                    <span class="material-symbols-outlined ${isOverdue ? 'text-rose-400' : 'text-primary'} text-base">${icon}</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-[10px] font-black text-white uppercase italic truncate">${c.equipment_name || 'Equipment'}</p>
+                                    <p class="text-[8px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">@${c.recipient_username || 'staff'} &bull; ${date}</p>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-lg border text-[8px] font-black uppercase ${statusCls} shrink-0">${statusLabel}</span>
+                            </div>`;
+                    }).join('');
+                } else {
+                    dispatches.innerHTML = '<div class="text-[9px] text-slate-600 font-black uppercase italic">No recent dispatches</div>';
+                }
+            }
+
+        } catch (e) {
+            console.warn('Equipment analytics load failed:', e.message);
+        }
+    };
+
+    // ─── Role-based UI ────────────────────────────────────────────────────────
     const setAdminUI = () => {
         const user = getCurrentUser();
         if (!user) return;
@@ -184,17 +294,16 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // ─── Global action delegation ─────────────────────────────────────────────
+    // ─── Logout delegation ────────────────────────────────────────────────────
     const bindGlobalActions = () => {
         document.addEventListener('click', (event) => {
             const button = event.target.closest('[data-action]');
             if (!button) return;
-            const action = button.dataset.action;
-
-            if (action === 'logout') {
+            if (button.dataset.action === 'logout') {
                 event.preventDefault();
                 localStorage.removeItem('mbtv_user');
-                window.location.href = window.location.pathname.includes('/pages/') ? '../index.html' : 'index.html';
+                window.location.href = window.location.pathname.includes('/pages/')
+                    ? '../index.html' : 'index.html';
             }
         });
     };
@@ -204,7 +313,7 @@ window.addEventListener('DOMContentLoaded', () => {
     renderNavUser();
     setAdminUI();
     loadDashboardStats();
-    loadActivityLog();
-    initDashboardCharts();
+    loadVideoSection();
+    loadEquipmentAnalytics();
     bindGlobalActions();
 });

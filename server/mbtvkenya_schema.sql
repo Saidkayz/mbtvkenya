@@ -170,6 +170,9 @@ CREATE TABLE video_reports (
 
 -- Default seed data for roles
 INSERT INTO roles (name, description) VALUES
-('administrator', 'Full access to admin dashboard and system settings'),
-('editor', 'Manages video metadata, uploads, and reports'),
-('technician', 'Handles equipment inventory, checkout and maintenance tasks');
+('Chief IT', 'Full system access and user management'),
+('Senior Editor', 'Content management and review'),
+('Camera Man', 'Equipment usage and field tracking'),
+('CEO', 'Executive oversight and reporting'),
+('Production Manager', 'Media pipeline management'),
+('Presenter', 'Program presentation and scheduling');

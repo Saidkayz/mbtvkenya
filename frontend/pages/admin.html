@@ -94,7 +94,7 @@
 <aside class="fixed left-0 top-0 h-screen w-64 border-r border-slate-800/40 bg-slate-950 font-manrope text-sm font-medium flex flex-col pt-16 z-40">
 <div class="px-6 mb-8">
 <div class="flex items-center gap-3">
-<img alt="MBTV Kenya Logo" class="h-24 w-auto object-contain" src="Design/mbtv-kenya.png"/>
+<img alt="MBTV Kenya Logo" class="h-24 w-auto object-contain" src="../Design/mbtv-kenya.png"/>
 <div>
 <h1 class="text-lg font-black text-white leading-tight">MBTV</h1>
 <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Kenya Portal</p>
@@ -112,7 +112,7 @@
 </ul>
 </nav>
 <div class="mt-auto px-6 pt-6 border-t border-slate-800">
-<a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors">
+<a href="../index.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors">
 <span class="material-symbols-outlined">logout</span>Logout
 </a>
 </div>
@@ -157,6 +157,7 @@
 <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
 <span class="text-secondary uppercase tracking-widest">Live Operations</span>
 </div>
+<button data-action="add-new-resource" class="chief-only hidden px-4 py-2 bg-primary text-on-primary rounded text-xs font-bold uppercase tracking-widest">Add Resource</button>
 </div>
 </div>
 <!-- Summary Cards Grid -->
@@ -345,6 +346,34 @@
                     </div>
 </div>
 </div>
+<!-- User Management Section (Chief IT Only) -->
+<div class="mt-10 chief-only hidden">
+    <div class="bg-surface-container-low rounded-xl overflow-hidden shadow-xl border border-white/5">
+        <div class="p-6 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-high/20">
+            <div>
+                <h4 class="headline-font font-bold text-lg text-white">User Management Cabinet</h4>
+                <p class="text-xs text-on-surface-variant mt-1">Manage system access and roles across the organization.</p>
+            </div>
+            <button id="add-user-trigger" class="px-4 py-2 bg-secondary text-on-secondary rounded text-xs font-bold uppercase tracking-widest hover:brightness-110 transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">person_add</span> Add New User
+            </button>
+        </div>
+        <div class="overflow-x-auto">
+            <table id="user-management-table" class="w-full text-left">
+                <thead>
+                    <tr class="bg-surface-container-high/30 text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
+                        <th class="px-6 py-4">Full Name</th>
+                        <th class="px-6 py-4">Username</th>
+                        <th class="px-6 py-4">Role</th>
+                        <th class="px-6 py-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="user-management-body" class="divide-y divide-outline-variant/5">
+                    <!-- Loaded via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 </main>
 <!-- Shared Footer Component -->
@@ -358,5 +387,61 @@
 © 2026 mbtvkenya all rights Reserved
 </p>
 </footer>
-<script src="dashboard.js"></script>
+<!-- User Creation Modal -->
+<div id="add-user-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden">
+    <div class="bg-surface-container-low w-full max-w-lg rounded-2xl border border-white/5 shadow-2xl overflow-hidden scale-95 transition-transform duration-300">
+        <div class="p-6 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-high/20">
+            <h3 class="headline-font font-bold text-xl text-white">Create New User</h3>
+            <button id="close-user-modal" class="text-on-surface-variant hover:text-white transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form id="admin-create-user-form" class="p-8 space-y-5">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-secondary uppercase tracking-widest ml-1">Full Name</label>
+                    <input type="text" name="full_name" required class="w-full bg-surface-container rounded-lg border-none text-sm px-4 py-3 focus:ring-1 focus:ring-primary" placeholder="Enter name">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-secondary uppercase tracking-widest ml-1">Username</label>
+                    <input type="text" name="username" required class="w-full bg-surface-container rounded-lg border-none text-sm px-4 py-3 focus:ring-1 focus:ring-primary" placeholder="Choose username">
+                </div>
+            </div>
+            <div class="space-y-1">
+                <label class="text-[10px] font-bold text-secondary uppercase tracking-widest ml-1">Email Address</label>
+                <input type="email" name="email" required class="w-full bg-surface-container rounded-lg border-none text-sm px-4 py-3 focus:ring-1 focus:ring-primary" placeholder="user@mbtv.co.ke">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-secondary uppercase tracking-widest ml-1">Phone Number</label>
+                    <input type="tel" name="phone" required class="w-full bg-surface-container rounded-lg border-none text-sm px-4 py-3 focus:ring-1 focus:ring-primary" placeholder="+254...">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-secondary uppercase tracking-widest ml-1">System Role</label>
+                    <select id="new-user-role" name="role_id" required class="w-full bg-surface-container rounded-lg border-none text-sm px-4 py-3 focus:ring-1 focus:ring-primary appearance-none">
+                        <option value="2">Senior Editor</option>
+                        <option value="3">Camera Man</option>
+                        <option value="4">CEO</option>
+                        <option value="5">Production Manager</option>
+                        <option value="6">Presenter</option>
+                    </select>
+                </div>
+            </div>
+            <div class="space-y-1">
+                <label class="text-[10px] font-bold text-secondary uppercase tracking-widest ml-1">Initial Password</label>
+                <input type="password" name="password" required class="w-full bg-surface-container rounded-lg border-none text-sm px-4 py-3 focus:ring-1 focus:ring-primary" placeholder="Minimum 6 characters">
+            </div>
+            <div class="pt-4">
+                <button type="submit" class="w-full bg-primary text-on-primary font-bold py-4 rounded-lg shadow-lg shadow-primary/20 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-sm">person_add</span> Create User Account
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="../assets/js/core.js"></script><script src="../assets/js/admin.js"></script>
 </body></html>
+
+
+

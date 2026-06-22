@@ -1,0 +1,107 @@
+2026-06-20T08:06:45+00:00 Array
+(
+    [type] => 1
+    [message] => Uncaught Error: mysqli object is already closed in C:\laragon\www\mbtvkenya\api\users.php:395
+Stack trace:
+#0 C:\laragon\www\mbtvkenya\api\users.php(395): mysqli->close()
+#1 {main}
+  thrown
+    [file] => C:\laragon\www\mbtvkenya\api\users.php
+    [line] => 395
+)
+
+2026-06-20T08:06:47+00:00 Array
+(
+    [type] => 1
+    [message] => Uncaught Error: mysqli object is already closed in C:\laragon\www\mbtvkenya\api\users.php:395
+Stack trace:
+#0 C:\laragon\www\mbtvkenya\api\users.php(395): mysqli->close()
+#1 {main}
+  thrown
+    [file] => C:\laragon\www\mbtvkenya\api\users.php
+    [line] => 395
+)
+
+2026-06-20T08:07:01+00:00 Array
+(
+    [type] => 1
+    [message] => Uncaught Error: mysqli object is already closed in C:\laragon\www\mbtvkenya\api\users.php:395
+Stack trace:
+#0 C:\laragon\www\mbtvkenya\api\users.php(395): mysqli->close()
+#1 {main}
+  thrown
+    [file] => C:\laragon\www\mbtvkenya\api\users.php
+    [line] => 395
+)
+
+2026-06-20T08:08:59+00:00 Array
+(
+    [type] => 1
+    [message] => Uncaught Error: mysqli object is already closed in C:\laragon\www\mbtvkenya\api\users.php:395
+Stack trace:
+#0 C:\laragon\www\mbtvkenya\api\users.php(395): mysqli->close()
+#1 {main}
+  thrown
+    [file] => C:\laragon\www\mbtvkenya\api\users.php
+    [line] => 395
+)
+
+2026-06-20T08:13:25+00:00 Array
+(
+    [type] => 1
+    [message] => Uncaught Error: mysqli object is already closed in C:\laragon\www\mbtvkenya\api\users.php:394
+Stack trace:
+#0 C:\laragon\www\mbtvkenya\api\users.php(394): mysqli->close()
+#1 {main}
+  thrown
+    [file] => C:\laragon\www\mbtvkenya\api\users.php
+    [line] => 394
+)
+
+2026-06-20T08:31:47+00:00 Array
+(
+    [type] => 1
+    [message] => Uncaught Error: Failed opening required 'auth.php' (include_path='.;C:/laragon/etc/php/pear') in C:\laragon\www\mbtvkenya\server\Core\users.php:33
+Stack trace:
+#0 {main}
+  thrown
+    [file] => C:\laragon\www\mbtvkenya\server\Core\users.php
+    [line] => 33
+)
+
+2026-06-20T08:32:56+00:00 Array
+(
+    [type] => 1
+    [message] => Uncaught Error: mysqli object is already closed in C:\laragon\www\mbtvkenya\server\Core\users.php:395
+Stack trace:
+#0 C:\laragon\www\mbtvkenya\server\Core\users.php(395): mysqli->close()
+#1 {main}
+  thrown
+    [file] => C:\laragon\www\mbtvkenya\server\Core\users.php
+    [line] => 395
+)
+
+2026-06-20T08:33:22+00:00 Array
+(
+    [type] => 1
+    [message] => Uncaught Error: mysqli object is already closed in C:\laragon\www\mbtvkenya\server\Core\users.php:395
+Stack trace:
+#0 C:\laragon\www\mbtvkenya\server\Core\users.php(395): mysqli->close()
+#1 {main}
+  thrown
+    [file] => C:\laragon\www\mbtvkenya\server\Core\users.php
+    [line] => 395
+)
+
+2026-06-20T08:33:57+00:00 Array
+(
+    [type] => 1
+    [message] => Uncaught Error: mysqli object is already closed in C:\laragon\www\mbtvkenya\server\Core\users.php:395
+Stack trace:
+#0 C:\laragon\www\mbtvkenya\server\Core\users.php(395): mysqli->close()
+#1 {main}
+  thrown
+    [file] => C:\laragon\www\mbtvkenya\server\Core\users.php
+    [line] => 395
+)
+

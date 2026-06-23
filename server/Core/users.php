@@ -69,6 +69,9 @@ switch ($action) {
     case 'delete-user':
         handleDeleteUser($conn, $input, $auth);
         break;
+    case 'update-user':
+        handleUpdateUser($conn, $input, $auth);
+        break;
     default:
         http_response_code(400);
         echo json_encode(['error' => 'Invalid action: ' . $action . '. Expected: register, verify-otp, login, list-users, or delete-user']);
@@ -157,6 +160,18 @@ function handleRegister($conn, $data, $auth) {
     if ($stmt->get_result()->num_rows > 0) {
         http_response_code(409);
         echo json_encode(['error' => 'Email already registered']);
+        $stmt->close();
+        return;
+    }
+    $stmt->close();
+
+    // Check if phone already exists
+    $stmt = $conn->prepare('SELECT id FROM users WHERE phone = ?');
+    $stmt->bind_param('s', $phone);
+    $stmt->execute();
+    if ($stmt->get_result()->num_rows > 0) {
+        http_response_code(409);
+        echo json_encode(['error' => 'Phone number already registered']);
         $stmt->close();
         return;
     }
@@ -365,9 +380,10 @@ function handleLogin($conn, $data, $auth) {
 function handleListUsers($conn, $auth) {
     $auth->requireChiefIT();
     
-    $result = $conn->query('SELECT id, username, email, full_name, phone, role FROM users');
+    $result = $conn->query('SELECT id, username, email, full_name, phone, role as role_name, status FROM users');
     $users = [];
     while ($row = $result->fetch_assoc()) {
+        $row['role_id'] = $row['role_name']; // For TS select modal compatibility
         $users[] = $row;
     }
     
@@ -421,6 +437,103 @@ function handleDeleteUser($conn, $data, $auth) {
     } else {
         http_response_code(500);
         echo json_encode(['error' => 'Failed to delete user: ' . $stmt->error]);
+    }
+    $stmt->close();
+}
+
+/**
+ * Update an existing user
+ */
+function handleUpdateUser($conn, $data, $auth) {
+    if (!$auth->isLoggedIn()) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        return;
+    }
+    
+    // Only Chief IT can edit other users
+    $isChief = $auth->isChiefIT();
+    $targetUserId = isset($data['id']) ? (int)$data['id'] : 0;
+    
+    if (!$targetUserId) {
+        http_response_code(400);
+        echo json_encode(['error' => 'User ID is required for update']);
+        return;
+    }
+    
+    if (!$isChief && $targetUserId !== (int)$_SESSION['user_id']) {
+        http_response_code(403);
+        echo json_encode(['error' => 'You do not have permission to edit this user']);
+        return;
+    }
+
+    $fullName = trim($data['full_name'] ?? '');
+    $email = trim($data['email'] ?? '');
+    $phone = trim($data['phone'] ?? '');
+    $status = $data['status'] ?? 'active';
+    $role = $data['role'] ?? '';
+    
+    if (empty($fullName) || empty($email)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Name and email are required']);
+        return;
+    }
+
+    // Check email uniqueness vs target user
+    $stmt = $conn->prepare('SELECT id FROM users WHERE email = ? AND id != ?');
+    $stmt->bind_param('si', $email, $targetUserId);
+    $stmt->execute();
+    if ($stmt->get_result()->num_rows > 0) {
+        http_response_code(409);
+        echo json_encode(['error' => 'Email already in use']);
+        $stmt->close();
+        return;
+    }
+    $stmt->close();
+
+    // Check phone uniqueness vs target user
+    if (!empty($phone)) {
+        $stmt = $conn->prepare('SELECT id FROM users WHERE phone = ? AND id != ?');
+        $stmt->bind_param('si', $phone, $targetUserId);
+        $stmt->execute();
+        if ($stmt->get_result()->num_rows > 0) {
+            http_response_code(409);
+            echo json_encode(['error' => 'Phone number already in use']);
+            $stmt->close();
+            return;
+        }
+        $stmt->close();
+    }
+
+    $updateQuery = 'UPDATE users SET full_name = ?, email = ?, phone = ?';
+    $params = [$fullName, $email, $phone];
+    $types = 'sss';
+
+    if ($isChief) {
+        $updateQuery .= ', status = ?, role = ?';
+        $params[] = $status;
+        $params[] = $role;
+        $types .= 'ss';
+    }
+
+    if (!empty($data['password'])) {
+        $updateQuery .= ', password_hash = ?';
+        $params[] = password_hash($data['password'], PASSWORD_BCRYPT);
+        $types .= 's';
+    }
+
+    $updateQuery .= ' WHERE id = ?';
+    $params[] = $targetUserId;
+    $types .= 'i';
+
+    $stmt = $conn->prepare($updateQuery);
+    $stmt->bind_param($types, ...$params);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'User updated successfully']);
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Database error during update: ' . $stmt->error]);
     }
     $stmt->close();
 }

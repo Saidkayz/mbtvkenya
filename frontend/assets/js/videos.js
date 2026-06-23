@@ -121,6 +121,11 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadVideos = async () => {
+        const grid = document.getElementById('video-grid');
+        if (grid) {
+            grid.innerHTML = Array(8).fill(0).map(() => MBTV_CORE.skeleton('h-48 w-full rounded-3xl')).join('');
+        }
+        
         try {
             const result = await fetchJson(endpoints.videos, {
                 method: 'POST',
@@ -134,6 +139,7 @@ window.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
             console.error('Failed to load videos', e);
             showToast('Failed to load videos', 'error');
+            if (grid) grid.innerHTML = '<div class="col-span-full py-12 text-center text-error font-black uppercase text-[10px] italic">Archive Link Failed</div>';
         }
     };
 
@@ -151,7 +157,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     if (tsFilterCategory) tsFilterCategory.destroy();
                     filterSelect.innerHTML = '<option value="">Search Streams</option>';
                     tsFilterCategory = new TomSelect(filterSelect, {
-                        valueField: 'id',
+                        valueField: 'name',
                         labelField: 'name',
                         searchField: ['name'],
                         options: result.categories,
@@ -165,10 +171,11 @@ window.addEventListener('DOMContentLoaded', () => {
                     if (tsModalCategory) tsModalCategory.destroy();
                     modalSelect.innerHTML = '<option value="">Select Category...</option>';
                     tsModalCategory = new TomSelect(modalSelect, {
-                        valueField: 'id',
+                        valueField: 'name',
                         labelField: 'name',
                         searchField: ['name'],
                         options: result.categories,
+                        create: true,
                         render: {
                             option: (data, escape) => `<div class="text-[10px] font-black uppercase italic">${escape(data.name)}</div>`
                         }
@@ -215,8 +222,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (nextBtn) nextBtn.addEventListener('click', () => {
         if (currentStep === 1) {
-            const title = document.querySelector('input[name="title"]');
-            const cat = document.querySelector('select[name="category_id"]');
+            const form = document.getElementById('video-form');
+            const title = form.querySelector('[name="title"]');
+            const cat = form.querySelector('[name="category"]');
             if (!title.value || !cat.value) {
                 showToast('Title and Category are required', 'error');
                 return;
@@ -262,6 +270,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
             const payload = serializeForm(form);
             payload.action = payload.id ? 'update' : 'create';
+
+            // Ensure TomSelect values are captured
+            if (tsModalCategory) payload.category = tsModalCategory.getValue();
+            if (tsCamera) payload.camera_number = tsCamera.getValue();
+            if (tsOperator) payload.camera_operator = tsOperator.getValue();
 
             try {
                 await fetchJson(endpoints.videos, {

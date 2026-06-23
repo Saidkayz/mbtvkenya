@@ -118,7 +118,7 @@
                         </div>
                         <div>
                             <p class="text-[9px] text-slate-500 font-black uppercase tracking-widest leading-none mb-1">Stock Portfolio</p>
-                            <h3 id="stat-total-equipment" class="text-xl font-headline font-black text-white">--</h3>
+                            <h3 id="stat-total-equipment" class="text-xl font-headline font-black text-white"><div class="mbtv-skeleton w-8 h-6"></div></h3>
                         </div>
                     </div>
                     <div class="flex items-center justify-between text-[9px] mt-4 border-t border-white/5 pt-3">
@@ -134,7 +134,7 @@
                         </div>
                         <div>
                             <p class="text-[9px] text-slate-500 font-black uppercase tracking-widest leading-none mb-1">Active Personnel</p>
-                            <h3 id="stat-total-users" class="text-xl font-headline font-black text-white">--</h3>
+                            <h3 id="stat-total-users" class="text-xl font-headline font-black text-white"><div class="mbtv-skeleton w-8 h-6"></div></h3>
                         </div>
                     </div>
                     <div class="flex items-center justify-between text-[9px] mt-4 border-t border-white/5 pt-3">
@@ -150,12 +150,12 @@
                         </div>
                         <div>
                             <p class="text-[9px] text-slate-500 font-black uppercase tracking-widest leading-none mb-1">Media Library</p>
-                            <h3 id="stat-total-videos" class="text-xl font-headline font-black text-white">--</h3>
+                            <h3 id="stat-total-videos" class="text-xl font-headline font-black text-white"><div class="mbtv-skeleton w-12 h-6"></div></h3>
                         </div>
                     </div>
                     <div class="flex items-center justify-between text-[9px] mt-4 border-t border-white/5 pt-3">
                         <span class="text-slate-500 uppercase tracking-widest font-bold italic">Pending Assets</span>
-                        <span id="stat-video-pending" class="text-amber-400 font-black italic">-- PENDING</span>
+                        <span id="stat-video-pending" class="text-amber-400 font-black italic"><div class="mbtv-skeleton w-16 h-3"></div></span>
                     </div>
                 </div>
                 <!-- Card 4: Logistics -->
@@ -166,7 +166,7 @@
                         </div>
                         <div>
                             <p class="text-[9px] text-slate-500 font-black uppercase tracking-widest leading-none mb-1">Pending Returns</p>
-                            <h3 id="stat-pending-returns" class="text-xl font-headline font-black text-white">--</h3>
+                            <h3 id="stat-pending-returns" class="text-xl font-headline font-black text-white"><div class="mbtv-skeleton w-8 h-6"></div></h3>
                         </div>
                     </div>
                     <div class="flex items-center justify-between text-[9px] mt-4 border-t border-white/5 pt-3">
@@ -177,128 +177,69 @@
             </div>
         </div>
 
-        <!-- ── Video Production Analytics ─────────────────────────────────── -->
+        <!-- ── Intelligence Analytics ────────────────────────────────────── -->
         <div class="mb-10">
             <div class="flex items-center gap-3 mb-5">
                 <div class="w-1 h-5 bg-primary rounded-full"></div>
-                <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Video Production Analytics</h3>
-                <a href="video_managment.html" class="ml-auto text-[9px] font-black text-primary hover:underline uppercase tracking-[0.2em]">Open Library &rarr;</a>
+                <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Infrastructure & Production Analytics</h3>
             </div>
-            <!-- Charts Row: Doughnut + Category Bar -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
-                <!-- Status Doughnut -->
-                <div class="lg:col-span-4 bg-surface border border-white/5 rounded-2xl shadow-xl p-6">
-                    <div class="flex items-center justify-between mb-1">
-                        <h4 class="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Pipeline Status</h4>
-                        <span class="text-2xl font-headline font-black text-white" id="video-stat-total">--</span>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Column 1: Equipment Availability -->
+                <div class="lg:col-span-3 bg-surface border border-white/5 rounded-2xl p-6 flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Hardware Health</h4>
+                        <a href="equipment_management.html" class="text-[8px] font-bold text-secondary hover:underline uppercase tracking-widest leading-none">Manage</a>
                     </div>
-                    <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-4">Total assets</p>
-                    <div class="relative h-44 flex items-center justify-center">
-                        <canvas id="videoStatusChart"></canvas>
+                    <div class="relative h-44 flex items-center justify-center mt-auto">
+                        <canvas id="equipAvailChart"></canvas>
                         <div class="absolute text-center pointer-events-none">
-                            <p class="text-2xl font-headline font-black text-white" id="video-donut-center">--</p>
-                            <p class="text-[8px] text-slate-500 font-black uppercase">Videos</p>
+                            <p class="text-2xl font-headline font-black text-white" id="equip-donut-center"><div class="mbtv-skeleton w-8 h-8 rounded-lg mb-1 mx-auto"></div></p>
+                            <p class="text-[8px] text-slate-500 font-black uppercase tracking-widest">Units</p>
                         </div>
                     </div>
                 </div>
-                <!-- Category Horizontal Bar -->
-                <div class="lg:col-span-5 bg-surface border border-white/5 rounded-2xl shadow-xl p-6">
-                    <h4 class="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4">Videos by Category</h4>
-                    <div class="h-56">
+
+                <!-- Column 2: Video Pipeline -->
+                <div class="lg:col-span-3 bg-surface border border-white/5 rounded-2xl p-6 flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Pipeline Flow</h4>
+                        <span class="text-xs font-black text-white" id="video-stat-total"><div class="mbtv-skeleton w-6 h-4"></div></span>
+                    </div>
+                    <div class="relative h-44 flex items-center justify-center mt-auto">
+                        <canvas id="videoStatusChart"></canvas>
+                        <div class="absolute text-center pointer-events-none">
+                            <p class="text-2xl font-headline font-black text-white" id="video-donut-center"><div class="mbtv-skeleton w-8 h-8 rounded-lg mb-1 mx-auto"></div></p>
+                            <p class="text-[8px] text-slate-500 font-black uppercase tracking-widest">Assets</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column 3: Category Bar Chart (Vertical) -->
+                <div class="lg:col-span-6 bg-surface border border-white/5 rounded-2xl p-6 flex flex-col">
+                    <h4 class="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4">Distribution by Category</h4>
+                    <div class="h-44 mt-auto">
                         <canvas id="videoCategoryChart"></canvas>
                     </div>
-                </div>
-                <!-- Latest Captures -->
-                <div class="lg:col-span-3 bg-surface border border-white/5 rounded-2xl shadow-xl p-6 flex flex-col">
-                    <h4 class="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4">Latest Captured</h4>
-                    <div id="latest-videos-list" class="space-y-4 overflow-y-auto max-h-56 pr-1">
-                        <div class="text-[9px] text-slate-600 font-black uppercase italic">Loading...</div>
-                    </div>
-                    <a href="video_managment.html" class="mt-4 text-center text-[8px] font-black text-primary/50 hover:text-primary uppercase tracking-widest transition-colors">View All &rarr;</a>
-                </div>
-            </div>
-            <!-- Mini Pipeline Status Pills -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-surface border border-amber-400/10 p-4 rounded-xl flex items-center gap-3">
-                    <div class="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0"></div>
-                    <div><p class="text-[8px] font-black text-amber-400 uppercase tracking-widest">Pending</p><p class="text-lg font-headline font-black text-white" id="vstat-pending">--</p></div>
-                </div>
-                <div class="bg-surface border border-blue-400/10 p-4 rounded-xl flex items-center gap-3">
-                    <div class="w-2.5 h-2.5 rounded-full bg-blue-400 shrink-0"></div>
-                    <div><p class="text-[8px] font-black text-blue-400 uppercase tracking-widest">Edit In Progress</p><p class="text-lg font-headline font-black text-white" id="vstat-edit">--</p></div>
-                </div>
-                <div class="bg-surface border border-emerald-400/10 p-4 rounded-xl flex items-center gap-3">
-                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></div>
-                    <div><p class="text-[8px] font-black text-emerald-400 uppercase tracking-widest">Completed</p><p class="text-lg font-headline font-black text-white" id="vstat-completed">--</p></div>
-                </div>
-                <div class="bg-surface border border-slate-500/10 p-4 rounded-xl flex items-center gap-3">
-                    <div class="w-2.5 h-2.5 rounded-full bg-slate-400 shrink-0"></div>
-                    <div><p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Archived</p><p class="text-lg font-headline font-black text-white" id="vstat-archived">--</p></div>
                 </div>
             </div>
         </div>
 
-        <!-- ── Equipment Overview ──────────────────────────────────────────── -->
-        <div class="mb-10">
-            <div class="flex items-center gap-3 mb-5">
-                <div class="w-1 h-5 bg-secondary rounded-full"></div>
-                <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Equipment Overview</h3>
-                <a href="equipment_management.html" class="ml-auto text-[9px] font-black text-secondary hover:underline uppercase tracking-[0.2em]">Manage Inventory &rarr;</a>
-            </div>
-            <!-- Stat Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-surface border border-white/5 p-4 rounded-2xl flex flex-col gap-2 shadow-xl hover:border-sky-500/20 transition-all">
-                    <div class="flex items-center gap-2">
-                        <div class="p-1.5 bg-sky-500/10 rounded-lg"><span class="material-symbols-outlined text-sky-400 text-base">inventory_2</span></div>
-                        <span class="text-[8px] font-black uppercase tracking-widest text-slate-500">Total Stock</span>
-                    </div>
-                    <p class="text-2xl font-headline font-black text-white" id="eq-stat-total">--</p>
+        <!-- ── Captured Assets ─────────────────────────────────────────── -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-12 bg-surface border border-white/5 rounded-2xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-6">
+                    <h4 class="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Latest Log Entries</h4>
+                    <a href="video_managment.html" class="text-[8px] font-black text-primary/50 hover:text-primary uppercase tracking-widest transition-colors">Archive Center &rarr;</a>
                 </div>
-                <div class="bg-surface border border-white/5 p-4 rounded-2xl flex flex-col gap-2 shadow-xl hover:border-emerald-500/20 transition-all">
-                    <div class="flex items-center gap-2">
-                        <div class="p-1.5 bg-emerald-500/10 rounded-lg"><span class="material-symbols-outlined text-emerald-400 text-base">check_circle</span></div>
-                        <span class="text-[8px] font-black uppercase tracking-widest text-slate-500">Available</span>
-                    </div>
-                    <p class="text-2xl font-headline font-black text-white" id="eq-stat-available">--</p>
-                </div>
-                <div class="bg-surface border border-white/5 p-4 rounded-2xl flex flex-col gap-2 shadow-xl hover:border-primary/20 transition-all">
-                    <div class="flex items-center gap-2">
-                        <div class="p-1.5 bg-primary/10 rounded-lg"><span class="material-symbols-outlined text-primary text-base">send</span></div>
-                        <span class="text-[8px] font-black uppercase tracking-widest text-slate-500">Deployed</span>
-                    </div>
-                    <p class="text-2xl font-headline font-black text-white" id="eq-stat-deployed">--</p>
-                </div>
-                <div class="bg-surface border border-white/5 p-4 rounded-2xl flex flex-col gap-2 shadow-xl hover:border-rose-500/20 transition-all">
-                    <div class="flex items-center gap-2">
-                        <div class="p-1.5 bg-rose-500/10 rounded-lg"><span class="material-symbols-outlined text-rose-400 text-base">warning</span></div>
-                        <span class="text-[8px] font-black uppercase tracking-widest text-slate-500">Overdue</span>
-                    </div>
-                    <p class="text-2xl font-headline font-black text-white" id="eq-stat-overdue">--</p>
-                </div>
-            </div>
-            <!-- Doughnut + Dispatches -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div class="lg:col-span-4 bg-surface border border-white/5 rounded-2xl shadow-xl p-6">
-                    <h4 class="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4">Availability Split</h4>
-                    <div class="relative h-44 flex items-center justify-center">
-                        <canvas id="equipAvailChart"></canvas>
-                        <div class="absolute text-center pointer-events-none">
-                            <p class="text-2xl font-headline font-black text-white" id="equip-donut-center">--</p>
-                            <p class="text-[8px] text-slate-500 font-black uppercase">Total</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="lg:col-span-8 bg-surface border border-white/5 rounded-2xl shadow-xl p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h4 class="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">Recent Dispatches</h4>
-                        <span class="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-                    </div>
-                    <div id="recent-dispatches" class="space-y-3 overflow-y-auto max-h-64 pr-1">
-                        <div class="text-[9px] text-slate-600 font-black uppercase italic">Loading...</div>
-                    </div>
+                <div id="latest-videos-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pr-1">
+                    <div class="mbtv-skeleton h-12 w-full rounded-xl opacity-40"></div>
+                    <div class="mbtv-skeleton h-12 w-full rounded-xl opacity-20"></div>
+                    <div class="mbtv-skeleton h-12 w-full rounded-xl opacity-10"></div>
                 </div>
             </div>
         </div>
+
     </main>
 
     <footer class="w-full py-12 border-t border-white/5 flex flex-col items-center gap-6 mt-16 bg-surface/50">

@@ -1,14 +1,23 @@
 /* Equipment Management Script for MBTV Kenya */
 
 window.addEventListener('DOMContentLoaded', () => {
-    const { endpoints, fetchJson, showToast, checkAuth, serializeForm, renderNavUser } = MBTV_CORE;
+    const { endpoints, fetchJson, showToast, checkAuth, serializeForm, renderNavUser, user } = MBTV_CORE;
+    
+    // Show register button for admins
+    if (user && user.role_name === 'Chief IT') {
+        const regBtn = document.querySelector('button[onclick*="register-modal"]');
+        if (regBtn) regBtn.classList.remove('hidden');
+    }
 
     let tsEquipment, tsStaff;
 
     // ----- Load activity-log table -----
     const loadActivityLog = async () => {
-        const tableBody = document.getElementById('activity-log-body');
-        if (!tableBody) return;
+        const streamContainer = document.getElementById('movement-stream');
+        if (!streamContainer) return;
+
+        // Set skeleton state
+        streamContainer.innerHTML = Array(3).fill(0).map(() => MBTV_CORE.skeleton('h-24 w-full rounded-2xl')).join('');
 
         try {
             const result = await fetchJson(endpoints.equipment, {
@@ -17,59 +26,64 @@ window.addEventListener('DOMContentLoaded', () => {
             });
 
             if (result.success && result.checkouts.length > 0) {
-                tableBody.innerHTML = result.checkouts.map(c => {
-                    const statusClass = c.status === 'checked_out'
-                        ? 'bg-primary/10 text-primary border-primary/20'
-                        : 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20';
-                    const statusLabel = c.status === 'checked_out' ? 'ACTIVE_DISPATCH' : 'UNIT_RETURNED';
+                streamContainer.innerHTML = result.checkouts.map(c => {
+                    const isOut = c.status === 'checked_out';
+                    const statusClass = isOut
+                        ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_0_15px_rgba(159,204,239,0.05)]'
+                        : 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20 shadow-[0_0_15px_rgba(52,211,153,0.05)]';
                     
-                    const returnButton = (c.status === 'checked_out') 
-                        ? `<button class="px-4 py-1.5 bg-slate-800 hover:bg-emerald-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all shadow-lg active:scale-95" onclick="window.confirmReturn(${c.id})">Verify Return</button>`
-                        : `<div class="flex items-center justify-end gap-2 text-emerald-400 font-bold text-[9px] uppercase"><span class="material-symbols-outlined text-xs">verified</span> LOGGED</div>`;
+                    const statusLabel = isOut ? 'Currently Out' : 'Back in Storage';
+                    const icon = isOut ? 'rocket_launch' : 'inventory_2';
+                    
+                    const returnButton = isOut 
+                        ? `<button class="px-4 py-1.5 bg-slate-900 border border-white/5 hover:border-emerald-500/50 hover:bg-emerald-500 hover:text-slate-950 text-white rounded-lg text-[8px] font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2" onclick="window.confirmReturn(${c.id})"><span class="material-symbols-outlined text-[10px]">check_circle</span> Mark as Returned</button>`
+                        : `<div class="flex items-center justify-end gap-1.5 text-emerald-400/50 font-black text-[8px] uppercase tracking-widest"><span class="material-symbols-outlined text-[10px]">verified</span> Returned</div>`;
 
                     const date = c.checkout_date
                         ? new Date(c.checkout_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
                         : '—';
-                    const time = c.checkout_date
-                        ? new Date(c.checkout_date).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-                        : '—';
 
                     return `
-                        <tr class="hover:bg-primary/5 transition-colors group">
-                            <td class="px-8 py-5">
-                                <div class="flex flex-col">
-                                    <span class="text-[11px] font-black text-white italic">${date}</span>
-                                    <span class="text-[8px] text-slate-500 uppercase tracking-widest font-bold">${time}</span>
-                                </div>
-                            </td>
-                            <td class="px-8 py-5">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 bg-background rounded-xl border border-white/5 flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors">
-                                        <span class="material-symbols-outlined text-xl">hardware</span>
+                        <div class="flex gap-4 group relative">
+                            <!-- Action Icon -->
+                            <div class="z-10 w-9 h-9 rounded-xl bg-surface border border-white/10 flex items-center justify-center ${isOut ? 'text-primary' : 'text-emerald-400'} shadow-xl transition-all group-hover:scale-105 group-hover:border-primary/50 shrink-0">
+                                <span class="material-symbols-outlined text-base ${!isOut ? 'fill-icon' : ''}">${icon}</span>
+                            </div>
+
+                            <!-- Movement Card -->
+                            <div class="flex-1 bg-white/[0.02] border border-white/5 rounded-2xl p-4 hover:bg-white/[0.04] transition-all hover:border-primary/20 flex items-center justify-between gap-4">
+                                <div class="flex flex-col min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-[8px] text-slate-500 uppercase tracking-widest font-black">${date}</span>
+                                        <span class="w-0.5 h-0.5 bg-white/10 rounded-full"></span>
+                                        <span class="text-[8px] text-slate-600 uppercase tracking-widest font-bold">#L${String(c.id).padStart(3, '0')}</span>
                                     </div>
-                                    <div class="flex flex-col">
-                                        <span class="text-[11px] font-black text-white uppercase italic">${c.equipment_name}</span>
-                                        <span class="text-[8px] text-primary/60 font-bold uppercase tracking-widest">${c.item_code}</span>
+                                    <h4 class="text-xs font-black text-white italic uppercase tracking-tight truncate">
+                                        ${c.equipment_name}
+                                        <span class="ml-2 text-[9px] text-primary/40 font-medium not-italic uppercase tracking-tighter">${c.item_code}</span>
+                                    </h4>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <div class="w-4 h-4 rounded bg-slate-800 border border-white/5 flex items-center justify-center text-[7px] font-black text-white uppercase shrink-0">${(c.recipient_username || 'S')[0]}</div>
+                                        <span class="text-[8px] text-slate-500 font-bold uppercase tracking-widest truncate">@${c.recipient_username || 'SYSTEM'}</span>
                                     </div>
                                 </div>
-                            </td>
-                            <td class="px-8 py-5">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">@${c.recipient_username || 'SYSTEM'}</span>
+                                
+                                <div class="flex flex-col items-end gap-3 shrink-0">
+                                    <div class="flex flex-col items-end gap-0.5">
+                                        <span class="px-3 py-1 ${statusClass} text-[8px] font-black rounded-lg border italic uppercase tracking-widest text-center">${statusLabel}</span>
+                                        <span class="text-[7px] text-slate-600 font-bold uppercase tracking-widest mt-0.5">x${c.quantity} Units</span>
+                                    </div>
+                                    ${returnButton}
                                 </div>
-                            </td>
-                            <td class="px-8 py-5 text-center">
-                                <span class="px-3 py-1 ${statusClass} text-[8px] font-black rounded-lg border italic uppercase tracking-widest">${statusLabel} x${c.quantity}</span>
-                            </td>
-                            <td class="px-8 py-5 text-right">${returnButton}</td>
-                        </tr>`;
+                            </div>
+                        </div>`;
                 }).join('');
             } else {
-                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-slate-500 text-xs font-black uppercase tracking-widest italic">Awaiting Payload...</td></tr>';
+                streamContainer.innerHTML = '<div class="flex flex-col items-center justify-center py-12 gap-3 opacity-20"><span class="material-symbols-outlined text-3xl">inventory_2</span><p class="text-[9px] font-black uppercase tracking-widest italic">No Logistics Movement</p></div>';
             }
         } catch (e) {
-            console.error('Failed to load activity log', e);
-            tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-error text-[10px] font-black uppercase italic">Handshake Error</td></tr>';
+            console.error('Failed to load logistics stream', e);
+            streamContainer.innerHTML = '<div class="p-6 text-center text-error text-[8px] font-black uppercase italic">Protocol Interrupted</div>';
         }
     };
 
@@ -154,7 +168,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const loadLogisticsStats = async () => {
         const utilStat = document.getElementById('utilization-stat');
         const overdueStat = document.getElementById('overdue-stat');
-        if (!utilStat || !overdueStat) return;
+        if (!overdueStat) return;
 
         try {
             const result = await fetchJson(endpoints.equipment, {
@@ -163,7 +177,7 @@ window.addEventListener('DOMContentLoaded', () => {
             });
 
             if (result.success) {
-                utilStat.textContent = `${result.utilization}%`;
+                if (utilStat) utilStat.textContent = `${result.utilization}%`;
                 overdueStat.textContent = `${result.overdue_count} Items Pending`;
             }
         } catch (e) {
@@ -314,6 +328,43 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // ----- Registration form submission -----
+    const bindRegisterForm = () => {
+        const form = document.getElementById('register-equipment-form');
+        if (!form) return;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Registering...';
+
+            const payload = serializeForm(form);
+            payload.action = 'create';
+            payload.status = 'available';
+
+            try {
+                await fetchJson(endpoints.equipment, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                showToast('New asset onboarded', 'success');
+                document.getElementById('register-modal').classList.add('hidden');
+                form.reset();
+                
+                populateEquipmentDropdown();
+                loadLogisticsStats();
+                loadTrendData();
+            } catch (err) {
+                showToast(err.message || 'Registration failed', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        });
+    };
+
     // ----- Checkout form submission -----
     const bindCheckoutForm = () => {
         const form = document.getElementById('equipment-form');
@@ -365,4 +416,26 @@ window.addEventListener('DOMContentLoaded', () => {
     loadLogisticsStats();
     loadTrendData();
     bindCheckoutForm();
+    window.confirmReturn = async (checkoutId) => {
+        if (!confirm('Are you sure you want to close this logistics protocol?')) return;
+        
+        try {
+            await fetchJson(endpoints.equipment, {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    action: 'return', 
+                    checkout_id: checkoutId 
+                })
+            });
+            showToast('Unit securely returned to inventory', 'success');
+            loadActivityLog();
+            populateEquipmentDropdown();
+            loadLogisticsStats();
+            loadTrendData();
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    };
+
+    bindRegisterForm();
 });

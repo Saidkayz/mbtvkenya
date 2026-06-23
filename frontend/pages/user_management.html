@@ -96,7 +96,7 @@
                 <h1 class="text-2xl font-headline font-black text-white tracking-tighter uppercase italic">Personnel Command</h1>
                 <p class="text-on-surface-variant mt-0.5 text-xs font-medium">System access control and user directory.</p>
             </div>
-            <button onclick="document.getElementById('user-modal').classList.remove('hidden')" class="bg-primary text-slate-950 px-6 py-3 rounded-xl font-black flex items-center gap-2 shadow-xl shadow-primary/20 hover:brightness-110 transition-all uppercase tracking-widest text-[10px]">
+            <button onclick="window.openCreateUser()" class="bg-primary text-slate-950 px-6 py-3 rounded-xl font-black flex items-center gap-2 shadow-xl shadow-primary/20 hover:brightness-110 transition-all uppercase tracking-widest text-[10px]">
                 <span class="material-symbols-outlined">person_add</span> Initialize User
             </button>
         </div>
@@ -147,52 +147,77 @@
             <div class="p-8 border-b border-white/5 flex justify-between items-center bg-white/5">
                 <div>
                     <h3 id="modal-title" class="text-xl font-headline font-black text-white italic uppercase">Initialize User</h3>
-                    <p class="text-[8px] text-primary uppercase font-black tracking-widest mt-0.5">System Access Configuration</p>
+                    <p class="text-[8px] text-primary uppercase font-black tracking-widest mt-1"><span id="modal-step-indicator">Step 1 of 2</span> • identity config</p>
                 </div>
                 <button onclick="document.getElementById('user-modal').classList.add('hidden')" class="text-slate-500 hover:text-white transition-colors">
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
-            <form id="user-form" class="p-8 space-y-6 overflow-y-auto">
+            <form id="user-form" class="flex-1 flex flex-col overflow-hidden">
                 <input type="hidden" name="id" id="edit-user-id">
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="space-y-2 col-span-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Full Identity</label>
-                        <input type="text" name="full_name" required class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                
+                <!-- Progress Bar -->
+                <div class="h-1 bg-white/5 flex">
+                    <div id="user-progress-bar" class="h-full bg-primary transition-all duration-500" style="width: 50%;"></div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8">
+                    <!-- Step 1: Identity -->
+                    <div id="user-step-1" class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Full Identity</label>
+                            <input type="text" name="full_name" required placeholder="e.g. John Doe" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Communication Channel (Email)</label>
+                            <input type="email" name="email" required placeholder="john.doe@mbtv.co.ke" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Contact Link (Phone)</label>
+                            <div class="flex gap-2">
+                                <div class="bg-surface border border-white/5 rounded-xl p-4 text-xs text-slate-400 font-bold select-none cursor-not-allowed text-center shrink-0 w-20 flex items-center justify-center">
+                                    +254
+                                </div>
+                                <input type="tel" name="phone_digits" placeholder="700123456" maxlength="9" pattern="[0-9]{9}" class="flex-1 bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all text-left tracking-widest">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Access -->
+                    <div id="user-step-2" class="space-y-6 hidden">
+                        <div id="password-field" class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Access Key (Password)</label>
+                            <input type="password" name="password" placeholder="••••••••" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                            <p class="text-[8px] text-slate-500 font-bold uppercase italic">Leave blank to keep existing key if editing.</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="space-y-2 text-slate-900">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Clearance Level</label>
+                                <select name="role_id" id="modal-role-select" required class="w-full"></select>
+                            </div>
+                            <div class="space-y-2 text-slate-900">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Deployment Status</label>
+                                <select name="status" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white appearance-none">
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                    <option value="suspended">Suspended</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Communication Channel (Email)</label>
-                    <input type="email" name="email" required class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
-                </div>
-                <div id="password-field" class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Access Key (Password)</label>
-                    <input type="password" name="password" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
-                    <p class="text-[8px] text-slate-500 font-bold uppercase italic">Leave blank to keep existing key if editing.</p>
-                </div>
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="space-y-2 text-slate-900">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Clearance Level</label>
-                        <select name="role_id" id="modal-role-select" required class="w-full"></select>
-                    </div>
-                    <div class="space-y-2 text-slate-900">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Deployment Status</label>
-                        <select name="status" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white appearance-none">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                            <option value="suspended">Suspended</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="flex gap-4 pt-6">
-                    <button type="button" onclick="document.getElementById('user-modal').classList.add('hidden')" class="flex-1 px-6 py-4 rounded-xl border border-white/5 text-slate-400 font-black uppercase tracking-widest text-[10px] hover:bg-white/5 transition-all">Cancel</button>
-                    <button type="submit" class="flex-2 bg-primary text-slate-950 px-10 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 hover:brightness-110 transition-all">Commit Configuration</button>
+
+                <div class="p-8 border-t border-white/5 bg-white/5 flex gap-4">
+                    <button type="button" id="user-prev-step" class="flex-1 px-6 py-4 rounded-xl border border-white/5 text-slate-400 font-black uppercase tracking-widest text-[10px] hover:bg-white/5 transition-all hidden">Back</button>
+                    <button type="button" id="user-cancel-modal" onclick="document.getElementById('user-modal').classList.add('hidden')" class="flex-1 px-6 py-4 rounded-xl border border-white/5 text-slate-400 font-black uppercase tracking-widest text-[10px] hover:bg-white/5 transition-all">Cancel</button>
+                    <button type="button" id="user-next-step" class="flex-2 bg-primary text-slate-950 px-10 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 hover:brightness-110 transition-all">Next &rarr;</button>
+                    <button type="submit" id="user-submit-btn" class="flex-2 bg-secondary text-slate-950 px-10 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-secondary/20 hover:brightness-110 transition-all hidden">Commit Configuration</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script src="../assets/js/core.js"></script>
-    <script src="../assets/js/users_page.js"></script>
+    <script src="../assets/js/users_page.js?v=3"></script>
 </body>
 </html>

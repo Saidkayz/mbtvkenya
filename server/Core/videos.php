@@ -206,13 +206,11 @@ function handleDelete($conn, $data, $auth) {
 
 function handleListCategories($conn) {
     $categories = [
-        ['id' => 'News', 'name' => 'News'],
-        ['id' => 'Sports', 'name' => 'Sports'],
-        ['id' => 'Religious', 'name' => 'Religious'],
-        ['id' => 'Educational', 'name' => 'Educational'],
-        ['id' => 'Entertainment', 'name' => 'Entertainment'],
-        ['id' => 'Documentary', 'name' => 'Documentary'],
-        ['id' => 'Sermon', 'name' => 'Sermon']
+        ['id' => 'Podcast', 'name' => 'Podcast'],
+        ['id' => 'Friday Khutbah', 'name' => 'Friday Khutbah'],
+        ['id' => 'Darsa', 'name' => 'Darsa'],
+        ['id' => 'Daawa tour', 'name' => 'Daawa tour'],
+        ['id' => 'Documentary', 'name' => 'Documentary']
     ];
     echo json_encode(['success' => true, 'categories' => $categories]);
 }

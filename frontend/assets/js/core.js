@@ -179,6 +179,39 @@ const MBTV_CORE = (() => {
         document.head.appendChild(style);
     };
 
+    const _injectSkeletonStyles = () => {
+        if (document.getElementById('mbtv-skeleton-styles')) return;
+        const style = document.createElement('style');
+        style.id = 'mbtv-skeleton-styles';
+        style.textContent = `
+            @keyframes mbtv-skeleton-loading {
+                0% { background-color: rgba(255, 255, 255, 0.03); }
+                50% { background-color: rgba(255, 255, 255, 0.08); }
+                100% { background-color: rgba(255, 255, 255, 0.03); }
+            }
+            .mbtv-skeleton {
+                animation: mbtv-skeleton-loading 1.8s infinite ease-in-out;
+                border-radius: 0.5rem;
+                display: inline-block;
+                width: 100%;
+                height: 1rem;
+                vertical-align: middle;
+            }
+            .mbtv-skeleton--circle { border-radius: 50%; }
+        `;
+        document.head.appendChild(style);
+    };
+
+    /**
+     * Generates HTML for a skeleton loader.
+     * @param {string} height - CSS height (e.g., '1rem', '20px')
+     * @param {string} width - CSS width (e.g., '100%', '50px')
+     * @param {string} extraClasses - additional classes
+     */
+    const skeleton = (height = '1rem', width = '100%', extraClasses = '') => {
+        return `<div class="mbtv-skeleton ${extraClasses}" style="height: ${height}; width: ${width};"></div>`;
+    };
+
     const _createToastRoot = () => {
         let root = document.getElementById('mbtv-toast-root');
         if (!root) {
@@ -273,6 +306,7 @@ const MBTV_CORE = (() => {
 
     // Auto-init
     document.addEventListener('DOMContentLoaded', () => {
+        _injectSkeletonStyles();
         checkAuth();
         renderNavUser();
         refreshSessionOnActivity();
@@ -285,7 +319,9 @@ const MBTV_CORE = (() => {
         fetchJson,
         showToast,
         serializeForm,
-        renderNavUser
+        renderNavUser,
+        skeleton,
+        get user() { return getCurrentUser(); }
     };
 })();
 

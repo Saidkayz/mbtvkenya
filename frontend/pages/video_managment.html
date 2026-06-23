@@ -119,20 +119,24 @@
         <!-- Video Grid -->
         <div id="video-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <!-- Videos load here -->
-            <div class="col-span-full py-20 text-center text-slate-600 font-black uppercase tracking-widest italic">Initializing Archive...</div>
+            <script>
+                for(let i=0; i<8; i++) {
+                    document.write(MBTV_CORE.skeleton('h-48 w-full rounded-3xl'));
+                }
+            </script>
         </div>
     </main>
 
     <!-- Video Modal (Log Metadata) -->
     <div id="video-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-6 hidden">
         <div class="bg-surface border border-white/10 w-full max-w-2xl rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] transform transition-all max-h-[90vh] flex flex-col">
-            <div class="p-8 border-b border-white/5 flex justify-between items-center bg-white/5">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
                 <div>
                     <h3 id="modal-title" class="text-xl font-headline font-black text-white italic uppercase">Capture Metadata</h3>
                     <p class="text-[8px] text-primary uppercase font-black tracking-widest mt-1"><span id="modal-step-indicator">Step 1 of 4</span> • production logging</p>
                 </div>
                 <button onclick="document.getElementById('video-modal').classList.add('hidden')" class="text-slate-500 hover:text-white transition-colors">
-                    <span class="material-symbols-outlined">close</span>
+                    <span class="material-symbols-outlined text-lg">close</span>
                 </button>
             </div>
             <form id="video-form" class="flex-1 flex flex-col overflow-hidden">
@@ -143,26 +147,26 @@
                     <div id="progress-bar" class="h-full bg-primary transition-all duration-500" style="width: 25%;"></div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto p-8">
+                <div class="flex-1 overflow-y-auto p-5">
                     <!-- Step 1: Identity & Context -->
                     <div id="form-step-1" class="space-y-6">
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Video Title</label>
-                            <input type="text" name="title" required placeholder="e.g. Tunu ya Kheri 4th Edition" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                            <input type="text" name="title" required placeholder="e.g. Tunu ya Kheri 4th Edition" class="w-full bg-background border border-white/5 rounded-xl p-3 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Category</label>
-                                <select name="category_id" id="modal-category-select" required class="w-full"></select>
+                                <select name="category" id="modal-category-select" required class="w-full"></select>
                             </div>
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Date</label>
-                                <input type="date" name="video_date" required class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                                <input type="date" name="video_date" required class="w-full bg-background border border-white/5 rounded-xl p-3 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
                             </div>
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Location</label>
-                            <input type="text" name="location" placeholder="e.g. Mombasa" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                            <input type="text" name="location" placeholder="e.g. Mombasa" class="w-full bg-background border border-white/5 rounded-xl p-3 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
                         </div>
                     </div>
 
@@ -177,7 +181,7 @@
                             </div>
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Resolution</label>
-                                <input type="text" name="resolution" placeholder="e.g. 4K 25fps" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                                <input type="text" name="resolution" placeholder="e.g. 4K 25fps" class="w-full bg-background border border-white/5 rounded-xl p-3 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
                             </div>
                         </div>
                         <div class="space-y-2">
@@ -188,7 +192,7 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Speaker / Guest</label>
-                            <input type="text" name="speaker" placeholder="e.g. Sheikh Abdallah" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                            <input type="text" name="speaker" placeholder="e.g. Sheikh Abdallah" class="w-full bg-background border border-white/5 rounded-xl p-3 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
                         </div>
                     </div>
 
@@ -196,16 +200,16 @@
                     <div id="form-step-3" class="space-y-6 hidden">
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Memory Card ID</label>
-                            <input type="text" name="memory_card" placeholder="e.g. SD-03" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                            <input type="text" name="memory_card" placeholder="e.g. SD-03" class="w-full bg-background border border-white/5 rounded-xl p-3 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Number of Clips</label>
-                                <input type="number" name="num_clips" placeholder="48" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                                <input type="number" name="num_clips" placeholder="48" class="w-full bg-background border border-white/5 rounded-xl p-3 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
                             </div>
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Total Duration</label>
-                                <input type="text" name="total_duration" placeholder="e.g. 2h 35m" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                                <input type="text" name="total_duration" placeholder="e.g. 2h 35m" class="w-full bg-background border border-white/5 rounded-xl p-3 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
                             </div>
                         </div>
                     </div>
@@ -215,16 +219,16 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Backup Status</label>
-                                <input type="text" name="backup_status" placeholder="e.g. SSD + NAS" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                                <input type="text" name="backup_status" placeholder="e.g. SSD + NAS" class="w-full bg-background border border-white/5 rounded-xl p-3 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
                             </div>
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Editor Assigned</label>
-                                <input type="text" name="editor_assigned" placeholder="e.g. MBTV Post Team" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
+                                <input type="text" name="editor_assigned" placeholder="e.g. MBTV Post Team" class="w-full bg-background border border-white/5 rounded-xl p-3 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all">
                             </div>
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Status</label>
-                            <select name="status" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all outline-none">
+                            <select name="status" class="w-full bg-background border border-white/5 rounded-xl p-3 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all outline-none">
                                 <option value="Pending">Pending</option>
                                 <option value="Edit In Progress">Edit In Progress</option>
                                 <option value="Review">Review</option>
@@ -234,23 +238,23 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">Technical Notes</label>
-                            <textarea name="notes" rows="3" placeholder="e.g. Audio on Clip 21 has background noise" class="w-full bg-background border border-white/5 rounded-xl p-4 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all"></textarea>
+                            <textarea name="notes" rows="3" placeholder="e.g. Audio on Clip 21 has background noise" class="w-full bg-background border border-white/5 rounded-xl p-3 text-xs text-white focus:ring-1 focus:ring-primary/50 transition-all"></textarea>
                         </div>
                     </div>
                 </div>
 
                 <!-- Action Footer -->
-                <div class="p-8 border-t border-white/5 bg-white/5 flex gap-4">
-                    <button type="button" id="prev-step" class="flex-1 px-6 py-4 rounded-xl border border-white/5 text-slate-400 font-black uppercase tracking-widest text-[10px] hover:bg-white/5 transition-all hidden">Back</button>
-                    <button type="button" id="cancel-modal" onclick="document.getElementById('video-modal').classList.add('hidden')" class="flex-1 px-6 py-4 rounded-xl border border-white/5 text-slate-400 font-black uppercase tracking-widest text-[10px] hover:bg-white/5 transition-all">Cancel</button>
-                    <button type="button" id="next-step" class="flex-2 bg-primary text-slate-950 px-10 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 hover:brightness-110 transition-all">Next &rarr;</button>
-                    <button type="submit" id="submit-asset" class="flex-2 bg-secondary text-slate-950 px-10 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-secondary/20 hover:brightness-110 transition-all hidden">Finalize Log</button>
+                <div class="p-6 border-t border-white/5 bg-white/5 flex gap-4">
+                    <button type="button" id="prev-step" class="flex-1 px-6 py-3 rounded-xl border border-white/5 text-slate-400 font-black uppercase tracking-widest text-[10px] hover:bg-white/5 transition-all hidden">Back</button>
+                    <button type="button" id="cancel-modal" onclick="document.getElementById('video-modal').classList.add('hidden')" class="flex-1 px-6 py-3 rounded-xl border border-white/5 text-slate-400 font-black uppercase tracking-widest text-[10px] hover:bg-white/5 transition-all">Cancel</button>
+                    <button type="button" id="next-step" class="flex-2 bg-primary text-slate-950 px-8 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 hover:brightness-110 transition-all">Next &rarr;</button>
+                    <button type="submit" id="submit-asset" class="flex-2 bg-secondary text-slate-950 px-8 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-secondary/20 hover:brightness-110 transition-all hidden">Finalize Log</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script src="../assets/js/core.js"></script>
-    <script src="../assets/js/videos.js"></script>
+    <script src="../assets/js/videos.js?v=2"></script>
 </body>
 </html>

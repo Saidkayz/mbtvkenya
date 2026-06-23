@@ -42,7 +42,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
             const set = (id, value) => {
                 const el = document.getElementById(id);
-                if (el) el.textContent = typeof value === 'number' ? value.toLocaleString() : value;
+                if (el) el.innerHTML = typeof value === 'number' ? value.toLocaleString() : (value || '--');
             };
 
             set('stat-total-videos',    data.total_videos);
@@ -69,15 +69,9 @@ window.addEventListener('DOMContentLoaded', () => {
             const categories = data.categories || {};
 
             // ── Total counter ──────────────────────────────────────────────
-            const setEl = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+            const setEl = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML = v ?? '--'; };
             setEl('video-stat-total',    total);
             setEl('video-donut-center',  total);
-
-            // ── Status pill badges ─────────────────────────────────────────
-            setEl('vstat-pending',   statuses['Pending']          || 0);
-            setEl('vstat-edit',      statuses['Edit In Progress'] || 0);
-            setEl('vstat-completed', statuses['Completed']        || 0);
-            setEl('vstat-archived',  statuses['Archived']         || 0);
 
             // ── Status Doughnut Chart ──────────────────────────────────────
             const statusList = [
@@ -143,20 +137,19 @@ window.addEventListener('DOMContentLoaded', () => {
                             }]
                         },
                         options: {
-                            indexAxis: 'y',
                             responsive: true, maintainAspectRatio: false,
                             plugins: { legend: { display: false } },
                             scales: {
                                 x: {
+                                    grid:   { display: false },
+                                    ticks:  { color: '#c1c7ce', font: { size: 9, weight: '700' } },
+                                    border: { display: false }
+                                },
+                                y: {
                                     grid:       { color: 'rgba(255,255,255,0.04)' },
                                     ticks:      { color: '#64748b', font: { size: 9, weight: '700' } },
                                     beginAtZero: true,
                                     border:     { display: false }
-                                },
-                                y: {
-                                    grid:   { display: false },
-                                    ticks:  { color: '#c1c7ce', font: { size: 9, weight: '700' } },
-                                    border: { display: false }
                                 }
                             }
                         }
@@ -180,11 +173,14 @@ window.addEventListener('DOMContentLoaded', () => {
                             ? new Date(v.video_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
                             : '—';
                         return `
-                            <div class="flex items-start gap-3">
-                                <span class="material-symbols-outlined ${statusDot[v.status] || 'text-slate-500'} text-sm mt-0.5 shrink-0">radio_button_checked</span>
+                            <div class="bg-white/5 border border-white/5 rounded-xl p-4 flex flex-col gap-3 hover:border-primary/20 transition-all cursor-default">
+                                <div class="flex items-center justify-between">
+                                    <span class="material-symbols-outlined ${statusDot[v.status] || 'text-slate-500'} text-xs">radio_button_checked</span>
+                                    <span class="text-[7px] text-slate-500 font-black uppercase tracking-widest">${date}</span>
+                                </div>
                                 <div class="min-w-0">
-                                    <p class="text-[10px] font-black text-white uppercase italic truncate leading-tight">${v.title}</p>
-                                    <p class="text-[8px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">${v.category || '—'} · ${date}</p>
+                                    <p class="text-[10px] font-black text-white uppercase italic truncate mb-1">${v.title}</p>
+                                    <p class="text-[8px] text-primary font-bold uppercase tracking-widest">${v.category || '—'}</p>
                                 </div>
                             </div>`;
                     }).join('');
@@ -198,6 +194,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+
     // ─── Equipment Overview Analytics ─────────────────────────────────────────
     const loadEquipmentAnalytics = async () => {
         try {
@@ -207,13 +204,8 @@ window.addEventListener('DOMContentLoaded', () => {
             });
             if (!data.success) return;
 
-            // ── Stat cards ─────────────────────────────────────────────────
-            const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v ?? '--'; };
-            set('eq-stat-total',      data.total       || 0);
-            set('eq-stat-available',  data.available   || 0);
-            set('eq-stat-deployed',   data.deployed    || 0);
-            set('eq-stat-overdue',    data.overdue     || 0);
-            set('equip-donut-center', data.total       || 0);
+            const donutCenter = document.getElementById('equip-donut-center');
+            if (donutCenter) donutCenter.innerHTML = data.total || 0;
 
             // ── Availability Doughnut ──────────────────────────────────────
             const chartData = [
@@ -244,47 +236,10 @@ window.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             }
-
-            // ── Recent Dispatches cards ────────────────────────────────────
-            const dispatches = document.getElementById('recent-dispatches');
-            if (dispatches) {
-                if (data.recent && data.recent.length > 0) {
-                    dispatches.innerHTML = data.recent.map(c => {
-                        const isOverdue = c.status === 'overdue';
-                        const isOut     = c.status === 'checked_out';
-                        const date = c.checkout_date
-                            ? new Date(c.checkout_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
-                            : '—';
-
-                        const statusCls   = isOverdue ? 'text-rose-400 bg-rose-400/10 border-rose-400/20'
-                                          : isOut     ? 'text-primary bg-primary/10 border-primary/20'
-                                          :             'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
-                        const statusLabel = isOverdue ? 'OVERDUE' : isOut ? 'OUT' : 'RETURNED';
-                        const icon        = isOverdue ? 'warning' : 'hardware';
-
-                        return `
-                            <div class="flex items-center gap-4 p-3 rounded-xl bg-white/3 border border-white/5 hover:bg-white/5 transition-all">
-                                <div class="p-2 rounded-lg ${isOverdue ? 'bg-rose-500/10' : 'bg-primary/10'} shrink-0">
-                                    <span class="material-symbols-outlined ${isOverdue ? 'text-rose-400' : 'text-primary'} text-base">${icon}</span>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-[10px] font-black text-white uppercase italic truncate">${c.equipment_name || 'Equipment'}</p>
-                                    <p class="text-[8px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">@${c.recipient_username || 'staff'} &bull; ${date}</p>
-                                </div>
-                                <span class="px-2 py-0.5 rounded-lg border text-[8px] font-black uppercase ${statusCls} shrink-0">${statusLabel}</span>
-                            </div>`;
-                    }).join('');
-                } else {
-                    dispatches.innerHTML = '<div class="text-[9px] text-slate-600 font-black uppercase italic">No recent dispatches</div>';
-                }
-            }
-
         } catch (e) {
             console.warn('Equipment analytics load failed:', e.message);
         }
     };
-
-    // ─── Role-based UI ────────────────────────────────────────────────────────
     const setAdminUI = () => {
         const user = getCurrentUser();
         if (!user) return;
